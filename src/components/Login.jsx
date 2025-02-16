@@ -8,6 +8,7 @@ const Login = () => {
 
   const [emailId, setEmailId] = useState("");
   const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
@@ -25,6 +26,7 @@ const Login = () => {
       return navigate("/");
     }
     catch (err) {
+      setError(err?.response?.data || "Something went wrong");
       console.log(err);
     }
   };
@@ -62,6 +64,7 @@ const Login = () => {
 
             </label>
           </div>
+          <p className="text-red-600">{error}</p>
           <div className="card-actions justify-end py-10">
             <button
               className="btn btn-primary"
