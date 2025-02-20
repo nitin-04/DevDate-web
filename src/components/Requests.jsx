@@ -1,7 +1,7 @@
 import axios from "axios";
 import { useDispatch, useSelector } from "react-redux";
 import { BASE_URL } from "../utils/constants";
-import { addRequests } from "../utils/requestSlice";
+import { addRequests, removeRequest } from "../utils/requestSlice";
 import { useEffect } from "react";
 
 
@@ -17,6 +17,7 @@ const Requests = () => {
                 {},
                 { withCredentials: true }
             );
+            dispatch(removeRequest(_id));
 
         }
         catch (err) {
