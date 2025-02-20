@@ -37,6 +37,7 @@ const Connections = () => {
 
             {connections.map((connection) => {
                 const {
+                    _id,
                     firstName,
                     lastName,
                     photoUrl,
@@ -46,25 +47,20 @@ const Connections = () => {
                 } = connection;
 
                 return (
-                    <div className="flex m-4 p-4 rounded-lg bg-base-200">
-                        <div>
-                            <img
-                                className="w-32 h-32 rounded-full"
-                                alt=""
-                                src={photoUrl}
-                            />
-                        </div>
 
-                        <div className="text-left mx-4">
-                            <h2 className="font-bold text-2xl">
-                                {firstName + " " + lastName}
-                            </h2>
-                            {age && gender &&
-                                <p>
-                                    {age + "," + gender}
-                                </p>
-                            }
+                    <div
+                        key={_id}
+                        className="card card-side bg-base-300 shadow-xl " >
+                        <figure>
+                            <img
+                                src={photoUrl}
+                                alt="photo" />
+                        </figure>
+                        <div className="card-body">
+                            <h2 className="card-title">{firstName + " " + lastName}</h2>
+                            {age && gender && <p>{age + "," + gender}</p>}
                             <p>{about}</p>
+
                         </div>
                     </div>
                 );
