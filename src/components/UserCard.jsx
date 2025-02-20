@@ -2,7 +2,12 @@ import PropTypes from 'prop-types';
 
 const UserCard = ({ user }) => {
     const { firstName, lastName, age, gender, photoUrl, about } = user;
-    // console.log(photoUrl)
+    
+
+    const handleSendRequest = async (status)
+
+
+
     return (
         <div className="card bg-base-400 w-96 shadow-xl">
             <figure>
