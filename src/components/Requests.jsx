@@ -9,6 +9,23 @@ const Requests = () => {
     const requests = useSelector((store) => store.requests);
     const dispatch = useDispatch();
 
+
+    const reviewRequest = async (status, _id) => {
+        try {
+            const res =  axios.post(
+                BASE_URL + "/request/review/" + status + "/" + _id,
+                {},
+                { withCredentials: true }
+            );
+
+        }
+        catch (err) {
+            console.error(err);
+        }
+    }
+
+
+
     const fetchRequests = async () => {
         try {
             const res = await axios.get(
@@ -63,8 +80,12 @@ const Requests = () => {
                             {age && gender && <p>{age + "," + gender}</p>}
                             <p>{about}</p>
                             <div className="card-actions justify-end">
-                                <button className="btn btn-primary">Accept</button>
-                                <button className="btn btn-ghost">Deny</button>
+                                <button
+                                    onClick={() => reviewRequest("accepted", request._id)}
+                                    className="btn btn-primary">Accept</button>
+                                <button
+                                    onClick={() => reviewRequest("rejected", request._id)}
+                                    className="btn btn-ghost">Deny</button>
                             </div>
 
                         </div>
