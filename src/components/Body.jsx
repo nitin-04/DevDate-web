@@ -14,9 +14,10 @@ const Body = () => {
     const userData = useSelector((store) => store.userData);
 
     const fetchUser = async () => {
-        if (userData) return;
         try {
-            const res = await axios.get(BASE_URL + "/profile/view", {
+            if (userData) return;
+            const res = await axios.get(BASE_URL + "/profile/view",
+                {}, {
                 withCredentials: true,
             });
             dispatch(addUser(res.data));
@@ -37,11 +38,8 @@ const Body = () => {
         // }
     }, []);
 
-
-
-
     return (
-        <div>
+        <div className=""  >
             <NavBar />
             <Outlet />
             <Footer />

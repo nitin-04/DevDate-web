@@ -4,8 +4,8 @@ import { useDispatch } from "react-redux";
 import { addUser } from "../utils/userSlice";
 import { useNavigate } from "react-router-dom";
 import { BASE_URL } from "../utils/constants";
-const Login = () => {
 
+const Login = () => {
   const [emailId, setEmailId] = useState("");
   const [password, setPassword] = useState("");
   const [firstName, setFirstName] = useState("");
@@ -19,18 +19,13 @@ const Login = () => {
     try {
       const res = await axios.post(
         BASE_URL + "/login",
-        {
-          emailId,
-          password,
-        },
+        { emailId, password },
         { withCredentials: true }
       );
       dispatch(addUser(res.data));
-      return navigate("/");
-    }
-    catch (err) {
+      navigate("/");
+    } catch (err) {
       setError(err?.response?.data || "Something went wrong");
-      console.log(err);
     }
   };
 
@@ -38,110 +33,74 @@ const Login = () => {
     try {
       const res = await axios.post(
         BASE_URL + "/signup",
-        {
-          firstName,
-          lastName,
-          emailId,
-          password,
-        },
+        { firstName, lastName, emailId, password },
         { withCredentials: true }
       );
       dispatch(addUser(res.data.data));
-      return navigate("/profile");
-    }
-    catch (err) {
+      navigate("/profile");
+    } catch (err) {
       setError(err?.response?.data || "Something went wrong");
-
     }
-  }
+  };
 
   return (
-    <div className="flex justify-center my-10">
-      <div className="card bg-base-100 w-96 shadow-xl">
-        <div className="card-body">
-          <h2 className="card-title justify-center">
-            {isLoginForm ? "login" : "Sign Up"}
-          </h2>
-          <div >
-            {!isLoginForm && (
-              <>
-                <label className="form-control w-full max-w-xs  ">
-                  <div className="label">
-                    <span className="label-text">First Name</span>
-                  </div>
-                  <input
-                    type="text"
-                    placeholder="Type here"
-                    value={firstName}
-                    className="input input-bordered w-full max-w-xs"
-                    onChange={(e) => setFirstName(e.target.value)}
-                  />
-
-                </label>
-                <label className="form-control w-full max-w-xs  ">
-                  <div className="label">
-                    <span className="label-text">Last Name</span>
-                  </div>
-                  <input
-                    type="text"
-                    placeholder="Type here"
-                    value={lastName}
-                    className="input input-bordered w-full max-w-xs"
-                    onChange={(e) => setLastName(e.target.value)}
-                  />
-
-                </label>
-              </>
-            )}
-            <label className="form-control w-full max-w-xs  ">
-              <div className="label">
-                <span className="label-text">Email</span>
-              </div>
+    <div className="flex justify-center items-center min-h-screen bg-gray-300 text-black">
+      <div className="bg-white p-8 rounded-lg shadow-lg w-96 mb-50">
+        <h2 className="text-2xl  font-semibold text-center mb-4">
+          {isLoginForm ? "Login" : "Sign Up"}
+        </h2>
+        <div className="space-y-6 text-center">
+          {!isLoginForm && (
+            <>
               <input
                 type="text"
-                placeholder="Type here"
-                value={emailId}
-                className="input input-bordered w-full max-w-xs"
-                onChange={(e) => setEmailId(e.target.value)}
+                placeholder="First Name"
+                value={firstName}
+                className="input-field"
+                onChange={(e) => setFirstName(e.target.value)}
               />
-
-            </label>
-            <label className="form-control w-full max-w-xs">
-              <div className="label">
-                <span className="label-text">Password</span>
-              </div>
               <input
                 type="text"
-                placeholder="Type here"
-                value={password}
-                className="input input-bordered w-full max-w-xs"
-                onChange={(e) => setPassword(e.target.value)}
+                placeholder="Last Name"
+                value={lastName}
+                className="input-field"
+                onChange={(e) => setLastName(e.target.value)}
               />
-
-            </label>
-          </div>
-          <p className="text-red-600">{error}</p>
-          <div className="card-actions justify-end py-10">
-            <button
-              className="btn btn-primary"
-              onClick={isLoginForm ? handleLogin : handleSignUp}
-            >
-              {isLoginForm ? "Login" : "Sign Up"}
-            </button>
-          </div>
-
-          <p className=""
-            onClick={() => setIsLoginForm((value) => !value)}>
-            {isLoginForm
-              ? "Don't have an account? Sign Up"
-              : "Already have an account? Login"}
-
-          </p>
+            </>
+          )}
+          <input
+            type="email"
+            placeholder="Email"
+            value={emailId}
+            className="input-field"
+            onChange={(e) => setEmailId(e.target.value)}
+          />
+          <input
+            type="password"
+            placeholder="Password"
+            value={password}
+            className="input-field"
+            onChange={(e) => setPassword(e.target.value)}
+          />
         </div>
+        {error && <p className="text-red-500 text-sm mt-2">{error}</p>}
+        <button
+          className="w-full mt-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 cursor-pointer"
+          onClick={isLoginForm ? handleLogin : handleSignUp}
+        >
+          {isLoginForm ? "Login" : "Sign Up"}
+        </button>
+        <p
+          className="text-sm text-center text-gray-600 mt-4 cursor-pointer hover:underline"
+          onClick={() => setIsLoginForm(!isLoginForm)}
+        >
+          {isLoginForm
+            ? "Don't have an account? Sign Up"
+            : "Already have an account? Login"}
+        </p>
       </div>
     </div>
-  )
-
-}
+  );
+};
 
 export default Login;

@@ -60,10 +60,10 @@ const Requests = () => {
                     _id,
                     firstName,
                     lastName,
-                    photoUrl,
                     age,
                     gender,
                     about,
+                    photoUrl,
                 } = request.fromUserId;
 
                 return (
