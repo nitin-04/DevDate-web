@@ -1,10 +1,28 @@
 import PropTypes from 'prop-types';
+import { BASE_URL } from '../utils/constants';
+import axios from 'axios';
+import { removeUserFromFeed } from '../utils/feedSlice';
+import { useDispatch } from 'react-redux';
 
 const UserCard = ({ user }) => {
-    const { firstName, lastName, age, gender, photoUrl, about } = user;
-    
+    const dispatch = useDispatch();
+    const { _id, firstName, lastName, age, gender, photoUrl, about } = user;
 
-    const handleSendRequest = async (status)
+
+    const handleSendRequest = async (status, userId) => {
+        try {
+            const res = await axios.post(
+                BASE_URL + "/request/send/" + status + "/" + userId,
+                {},
+                { withCredentials: true }
+            );
+            dispatch(removeUserFromFeed(userId))
+        }
+        catch (err) {
+            console.error(err);
+
+        }
+    }
 
 
 
@@ -13,7 +31,7 @@ const UserCard = ({ user }) => {
             <figure>
                 <img
                     alt="photo"
-                    src={user.photoUrl}
+                    src={photoUrl}
                 />
             </figure>
             <div className="card-body">
@@ -21,8 +39,14 @@ const UserCard = ({ user }) => {
                 {age && gender && <p>{age + "," + gender}</p>}
                 <p>{about}</p>
                 <div className="card-actions justify-end m-auto ">
-                    <button className="btn btn-primary">Ignore</button>
-                    <button className="btn btn-primary border-b-gray-700">Interested</button>
+                    <button
+                        className="btn btn-primary"
+                        onClick={() => handleSendRequest("ignored", _id)}
+                    >Ignore</button>
+                    <button
+                        className="btn btn-primary border-b-gray-700"
+                        onClick={() => handleSendRequest("interested", _id)}
+                    >Interested</button>
                 </div>
             </div>
         </div>
@@ -31,6 +55,7 @@ const UserCard = ({ user }) => {
 
 UserCard.propTypes = {
     user: PropTypes.shape({
+        _id: PropTypes.string.isRequired,
         firstName: PropTypes.string.isRequired,
         lastName: PropTypes.string.isRequired,
         about: PropTypes.string,
