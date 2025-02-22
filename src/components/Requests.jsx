@@ -9,6 +9,11 @@ const Requests = () => {
     const dispatch = useDispatch();
 
     const reviewRequest = async (status, _id) => {
+        console.log(`Reviewing request with status: ${status}, userId: ${_id}`);
+        if (!_id) {
+            console.error("Error: _id is undefined!");
+            return;
+        }
         try {
             await axios.post(
                 `${BASE_URL}/request/review/${status}/${_id}`,
@@ -26,8 +31,6 @@ const Requests = () => {
             const res = await axios.get(`${BASE_URL}/user/requests/received`, {
                 withCredentials: true,
             });
-
-
 
             if (res.data && res.data.data) {
                 dispatch(addRequests(res.data.data));
@@ -56,7 +59,7 @@ const Requests = () => {
                     .filter(request => request.fromUserId)
                     .map((request) => {
                         const { _id, firstName, lastName, age, gender, photoUrl, about } = request.fromUserId;
-                        console.log(age)
+                        
                         return (
                             <div
                                 key={_id}

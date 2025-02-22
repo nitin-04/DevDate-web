@@ -20,10 +20,11 @@ const EditProfile = ({ user }) => {
     const [showToast, setShowToast] = useState(false);
 
     const saveProfile = async () => {
-        setError("");
+        setError(""); // Reset error state
+
         try {
             const res = await axios.patch(
-                BASE_URL + "/profile/edit",
+                `${BASE_URL}/profile/edit`,
                 {
                     firstName,
                     lastName,
@@ -31,23 +32,26 @@ const EditProfile = ({ user }) => {
                     gender,
                     about,
                     photoUrl,
-
                 },
                 { withCredentials: true }
             );
+
             dispatch(addUser(res?.data?.data));
+
+            // Show toast
             setShowToast(true);
+
+            // Hide toast after 3 seconds
             setTimeout(() => {
                 setShowToast(false);
             }, 3000);
 
-        }
-        catch (err) {
-            setError(err?.response?.data);
+        } catch (err) {
+            setError(err?.response?.data || "Failed to update profile.");
             console.error("Error:", err.response?.data || err.message);
-
         }
-    }
+    };
+
 
 
     return (
@@ -152,17 +156,17 @@ const EditProfile = ({ user }) => {
                     </div>
 
                     <div>
-                    <UserCard user={{ firstName, lastName, age, gender, photoUrl, about }} />
+                        <UserCard user={{ firstName, lastName, age, gender, photoUrl, about }} />
                     </div>
                 </div>
-
                 {showToast && (
-                    <div className="toast toast-top toast-center">
-                        <div className="alert alert-success">
+                    <div className="fixed top-20 left-1/2 transform -translate-x-1/2 z-50 ">
+                        <div className="alert alert-success shadow-lg bg-blue-600 text-black">
                             <span>Profile saved successfully.</span>
                         </div>
                     </div>
                 )}
+
             </div>
         </>
     );

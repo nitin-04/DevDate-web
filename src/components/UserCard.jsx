@@ -23,8 +23,8 @@ const UserCard = ({ user }) => {
     };
 
     return (
-        <div className="bg-blue-50 p-6 rounded-lg shadow-md w-80 text-black">
-            <img className="w-full h-auto object-cover rounded-md" src={photoUrl} alt="User" />
+        <div className="bg-blue-50 p-6 rounded-lg shadow-md w-80  text-black">
+            <img className="w-full h-96 object-cover rounded-md" src={photoUrl} alt="User" />
 
             <div className="mt-4 text-center">
                 <h2 className="text-xl font-semibold">{firstName} {lastName}</h2>
