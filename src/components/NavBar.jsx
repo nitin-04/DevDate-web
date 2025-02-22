@@ -10,61 +10,51 @@ const NavBar = () => {
     const navigate = useNavigate();
 
     const handleLogout = async () => {
-        try{
-            await axios.post(BASE_URL + "/logout", {}, {withCredentials:true});
+        try {
+            await axios.post(BASE_URL + "/logout", {}, { withCredentials: true });
             dispatch(removeUser());
             return navigate("/login");
         }
-        catch(err){
+        catch (err) {
             console.error(err);
         }
     }
 
     return (
-        <div className="navbar bg-base-300">
-            <div className="flex-1">
-                <Link to="/" className="btn btn-ghost text-xl">DevDate</Link>
-            </div>
-
+        <div className="navbar bg-white text-black  px-6 py-3 flex justify-between items-center shadow-md">
+            <Link to="/" className="text-2xl font-bold text-blue-800 hover:text-blue-400">DevDate</Link>
             {user && (
-                <div className="flex gap-2 ">
-                    <div className="form-control">
-                        Welcome, {user.firstName}
-                    </div>
-                    <div className="dropdown dropdown-end mx-5 flex">
-                        <div tabIndex={0} role="button" className="btn btn-ghost btn-circle avatar">
-                            <div className="w-10 rounded-full">
-                                <img
-                                    alt="user photo"
-                                    src={user.photoUrl} />
-                            </div>
+                <div className="flex items-center gap-4">
+                    <span className="font-bold text-xl">Welcome, {user.firstName}</span>
+                    <div className="relative group">
+                        <button
+                            className="w-15 h-15 rounded-full overflow-hidden border-2 border-gray-300 cursor-pointer focus:outline-none"
+                        >
+                            <img src={user.photoUrl} alt="User" className="w-full h-full object-cover" />
+                        </button>
+                        <div className="absolute right-0 mt-2 w-52 bg-white text-gray-800 shadow-lg rounded-lg opacity-0 invisible transition-opacity duration-200 ease-in-out group-hover:opacity-100 group-hover:visible group-focus-within:opacity-100 group-focus-within:visible">
+                            <ul >
+                                <li className="border-b hover:bg-gray-400">
+                                    <Link to="/profile" className="block px-4 py-2">Profile</Link>
+                                </li>
+                                <li className="border-b hover:bg-gray-400">
+                                    <Link to="/connections" className="block px-4 py-2">Connections</Link>
+                                </li>
+                                <li className="border-b hover:bg-gray-400">
+                                    <Link to="/requests" className="block px-4 py-2">Requests</Link>
+                                </li>
+                                <li className="hover:bg-red-100 text-red-600">
+                                    <button onClick={handleLogout} className="w-full text-left px-4 py-2">Logout</button>
+                                </li>
+                            </ul>
                         </div>
-                        <ul
-                            tabIndex={0}
-                            className="menu menu-sm dropdown-content bg-base-100 rounded-box z-[1] mt-3 w-52 p-2 shadow">
-                            <li>
-                                <Link to="/profile" className="justify-between">
-                                    Profile
-                                    <span className="badge">New</span>
-                                </Link>
-                            </li>
-                            <li>
-                                <Link to="/connections">
-                                Connections
-                                </Link>
-                            </li>
-                            <li>
-                                <Link to="/requests">
-                                Requests
-                                </Link>
-                            </li>
-                            <li><a onClick={handleLogout}>Logout</a></li>
-                        </ul>
                     </div>
                 </div>
             )}
         </div>
-    )
+    );
+
+
 }
 
 export default NavBar
