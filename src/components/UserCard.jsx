@@ -16,18 +16,19 @@ const UserCard = ({ user }) => {
                 { withCredentials: true }
             );
             dispatch(removeUserFromFeed(userId));
-            
+
         } catch (err) {
             console.error(err);
         }
     };
 
     return (
-        <div className="bg-white p-6 rounded-lg shadow-md w-80 text-black">
-            <img className="w-full h-40 object-cover rounded-md" src={photoUrl} alt="User" />
+        <div className="bg-blue-50 p-6 rounded-lg shadow-md w-80 text-black">
+            <img className="w-full h-auto object-cover rounded-md" src={photoUrl} alt="User" />
+
             <div className="mt-4 text-center">
                 <h2 className="text-xl font-semibold">{firstName} {lastName}</h2>
-                {age && gender && <p className="text-gray-500">{age}, {gender}</p>}
+                {age && gender && <p className="text-gray-500">{age + "," + gender}</p>}
                 <p className="text-gray-700 mt-2">{about}</p>
                 <div className="flex justify-center gap-4 mt-4">
                     <button
@@ -49,10 +50,10 @@ UserCard.propTypes = {
         _id: PropTypes.string.isRequired,
         firstName: PropTypes.string.isRequired,
         lastName: PropTypes.string.isRequired,
-        about: PropTypes.string,
+        age: PropTypes.string,
         gender: PropTypes.string,
-        age: PropTypes.number,
-        photoUrl: PropTypes.string
+        photoUrl: PropTypes.string,
+        about: PropTypes.string,
     }).isRequired
 };
 

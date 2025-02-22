@@ -35,8 +35,6 @@ const EditProfile = ({ user }) => {
                 },
                 { withCredentials: true }
             );
-
-            console.log("Response Data:", res.data);
             dispatch(addUser(res?.data?.data));
             setShowToast(true);
             setTimeout(() => {
@@ -175,7 +173,7 @@ EditProfile.propTypes = {
     user: PropTypes.shape({
         firstName: PropTypes.string,
         lastName: PropTypes.string,
-        age: PropTypes.number,
+        age: PropTypes.string,
         gender: PropTypes.string,
         photoUrl: PropTypes.string,
         about: PropTypes.string,

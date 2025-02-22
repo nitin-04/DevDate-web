@@ -39,7 +39,7 @@ const Connections = () => {
                             <img src={photoUrl} alt="profile" className="w-full h-48 object-cover" />
                             <div className="p-5">
                                 <h2 className="text-xl font-semibold">{firstName + " " + lastName}</h2>
-                                {age && gender && <p className="text-gray-600">{age}, {gender}</p>}
+                                {age && gender && <p className="text-gray-600">{age + "," + gender}</p>}
                                 <p className="text-gray-700 mt-2">{about}</p>
                             </div>
                         </div>
