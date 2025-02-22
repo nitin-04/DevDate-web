@@ -21,7 +21,7 @@ const NavBar = () => {
     }
 
     return (
-        <div className="navbar bg-white text-black  px-6 py-3 flex justify-between items-center shadow-md">
+        <div className="navbar fixed top-0 left-0 w-full z-50 bg-white text-black  px-6 py-3 flex justify-between items-center shadow-md ">
             <Link to="/" className="text-2xl font-bold text-blue-800 hover:text-blue-400">DevDate</Link>
             {user && (
                 <div className="flex items-center gap-4">
