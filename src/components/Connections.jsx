@@ -28,14 +28,14 @@ const Connections = () => {
     }
 
     return (
-        <div className="max-w-5xl mx-auto my-10 px-4">
+        <div className="max-w-5xl mx-auto my-10 px-4 ">
             <h1 className="text-center text-3xl font-bold mb-6">Connections</h1>
-            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 ">
                 {connections.map((connection) => {
                     const { _id, firstName, lastName, photoUrl, age, gender, about } = connection;
 
                     return (
-                        <div key={_id} className="bg-white shadow-lg rounded-lg overflow-hidden hover:shadow-2xl transition duration-300">
+                        <div key={_id} className="bg-white shadow-lg rounded-lg overflow-hidden hover:shadow-2xl transition duration-300 text-center">
                             <img src={photoUrl} alt="profile" className="w-full h-48 object-cover" />
                             <div className="p-5">
                                 <h2 className="text-xl font-semibold">{firstName + " " + lastName}</h2>

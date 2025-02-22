@@ -22,13 +22,21 @@ const NavBar = () => {
 
     return (
         <div className="navbar fixed top-0 left-0 w-full z-50 bg-white text-black  px-6 py-3 flex justify-between items-center shadow-md ">
-            <Link to="/" className="text-2xl font-bold text-blue-800 hover:text-blue-400">DevDate</Link>
+            <Link
+                to="/"
+                onClick={(e) => !user && e.preventDefault()}
+                className="text-2xl font-bold text-blue-800 hover:text-blue-400"
+            >
+                DevDate
+            </Link>
+
+
             {user && (
                 <div className="flex items-center gap-4">
                     <span className="font-bold text-xl">Welcome, {user.firstName}</span>
                     <div className="relative group">
                         <button
-                            className="w-15 h-15 rounded-full overflow-hidden border-2 border-gray-300 cursor-pointer focus:outline-none"
+                            className="w-10 h-10 rounded-full overflow-hidden border-2 border-gray-300 cursor-pointer focus:outline-none"
                         >
                             <img src={user.photoUrl} alt="User" className="w-full h-full object-cover" />
                         </button>

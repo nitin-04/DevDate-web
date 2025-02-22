@@ -31,11 +31,11 @@ const UserCard = ({ user }) => {
                 <p className="text-gray-700 mt-2">{about}</p>
                 <div className="flex justify-center gap-4 mt-4">
                     <button
-                        className="px-4 py-2 bg-gray-700 text-white rounded-lg hover:bg-red-600 cursor-pointer"
+                        className="px-4 py-2 bg-gray-700 text-white rounded-lg hover:bg-blue-500 cursor-pointer"
                         onClick={() => handleSendRequest("ignored", _id)}
                     >Ignore</button>
                     <button
-                        className="px-4 py-2 bg-gray-700 text-white rounded-lg hover:bg-green-600 cursor-pointer"
+                        className="px-4 py-2 bg-gray-700 text-white rounded-lg hover:bg-blue-500 cursor-pointer"
                         onClick={() => handleSendRequest("interested", _id)}
                     >Interested</button>
                 </div>

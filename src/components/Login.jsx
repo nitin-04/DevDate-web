@@ -44,7 +44,7 @@ const Login = () => {
   };
 
   return (
-    <div className="flex justify-center items-center min-h-screen bg-gray-300 text-black">
+    <div className="flex justify-center items-center min-h-screen  text-black bg-blue-300">
       <div className="bg-white p-8 rounded-lg shadow-lg w-96 mb-50">
         <h2 className="text-2xl  font-semibold text-center mb-4">
           {isLoginForm ? "Login" : "Sign Up"}
@@ -56,14 +56,14 @@ const Login = () => {
                 type="text"
                 placeholder="First Name"
                 value={firstName}
-                className="input-field"
+                className="input-field rounded-l p-1"
                 onChange={(e) => setFirstName(e.target.value)}
               />
               <input
                 type="text"
                 placeholder="Last Name"
                 value={lastName}
-                className="input-field"
+                className="input-field rounded-l p-1"
                 onChange={(e) => setLastName(e.target.value)}
               />
             </>
@@ -72,24 +72,27 @@ const Login = () => {
             type="email"
             placeholder="Email"
             value={emailId}
-            className="input-field"
+            className="input-field rounded-l p-1"
             onChange={(e) => setEmailId(e.target.value)}
           />
           <input
             type="password"
             placeholder="Password"
             value={password}
-            className="input-field"
+            className="input-field rounded-l p-1"
             onChange={(e) => setPassword(e.target.value)}
           />
         </div>
         {error && <p className="text-red-500 text-sm mt-2">{error}</p>}
+        <div className="flex justify-center">
         <button
-          className="w-full mt-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 cursor-pointer"
+          className="w-20  mt-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 cursor-pointer"
           onClick={isLoginForm ? handleLogin : handleSignUp}
         >
           {isLoginForm ? "Login" : "Sign Up"}
         </button>
+
+        </div>
         <p
           className="text-sm text-center text-gray-600 mt-4 cursor-pointer hover:underline"
           onClick={() => setIsLoginForm(!isLoginForm)}
