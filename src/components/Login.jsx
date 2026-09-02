@@ -2,105 +2,199 @@ import { useState } from "react";
 import axios from "axios";
 import { useDispatch } from "react-redux";
 import { addUser } from "../utils/userSlice";
+import { clearFeed } from "../utils/feedSlice";
+import { removeConnections } from "../utils/connectionSlice";
+import { clearRequests } from "../utils/requestSlice";
 import { useNavigate } from "react-router-dom";
 import { BASE_URL } from "../utils/constants";
+import { 
+  Code2, 
+  Mail, 
+  Lock, 
+  User, 
+  Eye, 
+  EyeOff, 
+  ArrowRight, 
+  Sparkles 
+} from "lucide-react";
 
 const Login = () => {
-  const [emailId, setEmailId] = useState("nishant@gmail.com");
-  const [password, setPassword] = useState("Nishant@4321");
+  const [emailId, setEmailId] = useState("");
+  const [password, setPassword] = useState("");
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
-  const [isLoginForm, setIsLoginForm] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
+  const [isLoginForm, setIsLoginForm] = useState(true);
   const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
-  const handleLogin = async () => {
+  const handleLogin = async (e) => {
+    e?.preventDefault();
+    setError("");
+    setLoading(true);
     try {
       const res = await axios.post(
         BASE_URL + "/login",
         { emailId, password },
         { withCredentials: true }
       );
+      dispatch(clearFeed());
+      dispatch(removeConnections());
+      dispatch(clearRequests());
       dispatch(addUser(res.data));
       navigate("/");
     } catch (err) {
-      setError(err?.response?.data || "Something went wrong");
+      const msg = err?.response?.data?.message || (typeof err?.response?.data === "string" ? err.response.data : "Invalid credentials. Please try again.");
+      setError(msg);
+    } finally {
+      setLoading(false);
     }
   };
 
-  const handleSignUp = async () => {
+  const handleSignUp = async (e) => {
+    e?.preventDefault();
+    setError("");
+    setLoading(true);
     try {
       const res = await axios.post(
         BASE_URL + "/signup",
         { firstName, lastName, emailId, password },
         { withCredentials: true }
       );
+      dispatch(clearFeed());
+      dispatch(removeConnections());
+      dispatch(clearRequests());
       dispatch(addUser(res.data.data));
       navigate("/profile");
     } catch (err) {
-      setError(err?.response?.data || "Something went wrong");
+      const msg = err?.response?.data?.message || (typeof err?.response?.data === "string" ? err.response.data : "Failed to create account.");
+      setError(msg);
+    } finally {
+      setLoading(false);
     }
   };
 
   return (
-    <div className="flex justify-center items-center min-h-screen  text-black bg-blue-300">
-      <div className="bg-white p-8 rounded-lg shadow-lg w-96 mb-50">
-        <h2 className="text-2xl  font-semibold text-center mb-4">
-          {isLoginForm ? "Login" : "Sign Up"}
-        </h2>
-        <div className="space-y-6 text-center">
-          {!isLoginForm && (
-            <>
-              <input
-                type="text"
-                placeholder="First Name"
-                value={firstName}
-                className="input-field rounded-l p-1"
-                onChange={(e) => setFirstName(e.target.value)}
-              />
-              <input
-                type="text"
-                placeholder="Last Name"
-                value={lastName}
-                className="input-field rounded-l p-1"
-                onChange={(e) => setLastName(e.target.value)}
-              />
-            </>
-          )}
-          <input
-            type="email"
-            placeholder="Email"
-            value={emailId}
-            className="input-field rounded-l p-1"
-            onChange={(e) => setEmailId(e.target.value)}
-          />
-          <input
-            type="password"
-            placeholder="Password"
-            value={password}
-            className="input-field rounded-l p-1"
-            onChange={(e) => setPassword(e.target.value)}
-          />
-        </div>
-        {error && <p className="text-red-500 text-sm mt-2">{error}</p>}
-        <div className="flex justify-center">
-        <button
-          className="w-20  mt-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 cursor-pointer"
-          onClick={isLoginForm ? handleLogin : handleSignUp}
-        >
-          {isLoginForm ? "Login" : "Sign Up"}
-        </button>
+    <div className="flex justify-center items-center min-h-[calc(100vh-6rem)] px-4 py-12">
+      <div className="relative w-full max-w-md">
+        {/* Glow backdrop */}
+        <div className="absolute -inset-1 bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 rounded-3xl blur-xl opacity-30 group-hover:opacity-100 transition duration-1000 group-hover:duration-200 animate-pulse" />
 
+        {/* Card */}
+        <div className="relative bg-slate-900/90 border border-slate-800 rounded-3xl shadow-2xl p-8 sm:p-10 backdrop-blur-2xl text-slate-100">
+          {/* Header */}
+          <div className="text-center mb-8">
+            <div className="inline-flex items-center justify-center w-14 h-14 rounded-2xl bg-gradient-to-tr from-indigo-600 to-purple-600 shadow-xl shadow-indigo-500/25 mb-4">
+              <Code2 className="w-7 h-7 text-white" />
+            </div>
+            <h2 className="text-2xl sm:text-3xl font-black tracking-tight text-white">
+              {isLoginForm ? "Welcome Back" : "Join the Dev Community"}
+            </h2>
+            <p className="text-slate-400 text-xs sm:text-sm mt-1.5">
+              {isLoginForm
+                ? "Connect with passionate developers worldwide."
+                : "Build your dev profile and discover matching collaborators."}
+            </p>
+          </div>
+
+          {/* Form */}
+          <form onSubmit={isLoginForm ? handleLogin : handleSignUp} className="space-y-4">
+            {!isLoginForm && (
+              <div className="grid grid-cols-2 gap-3">
+                <div className="relative">
+                  <User className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
+                  <input
+                    type="text"
+                    placeholder="First Name"
+                    value={firstName}
+                    onChange={(e) => setFirstName(e.target.value)}
+                    required
+                    className="w-full pl-10 pr-3 py-2.5 rounded-xl bg-slate-950/80 border border-slate-800 text-sm text-slate-100 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/50 focus:border-indigo-500/50 transition-all"
+                  />
+                </div>
+                <div className="relative">
+                  <User className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
+                  <input
+                    type="text"
+                    placeholder="Last Name"
+                    value={lastName}
+                    onChange={(e) => setLastName(e.target.value)}
+                    className="w-full pl-10 pr-3 py-2.5 rounded-xl bg-slate-950/80 border border-slate-800 text-sm text-slate-100 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/50 focus:border-indigo-500/50 transition-all"
+                  />
+                </div>
+              </div>
+            )}
+
+            {/* Email */}
+            <div className="relative">
+              <Mail className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
+              <input
+                type="email"
+                placeholder="developer@example.com"
+                value={emailId}
+                onChange={(e) => setEmailId(e.target.value)}
+                required
+                className="w-full pl-10 pr-4 py-2.5 rounded-xl bg-slate-950/80 border border-slate-800 text-sm text-slate-100 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/50 focus:border-indigo-500/50 transition-all"
+              />
+            </div>
+
+            {/* Password */}
+            <div className="relative">
+              <Lock className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
+              <input
+                type={showPassword ? "text" : "password"}
+                placeholder="Password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                required
+                className="w-full pl-10 pr-11 py-2.5 rounded-xl bg-slate-950/80 border border-slate-800 text-sm text-slate-100 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/50 focus:border-indigo-500/50 transition-all"
+              />
+              <button
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                className="absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-200 cursor-pointer"
+              >
+                {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+              </button>
+            </div>
+
+            {/* Error Message */}
+            {error && (
+              <div className="p-3 rounded-xl bg-rose-500/10 border border-rose-500/30 text-rose-400 text-xs leading-relaxed">
+                {error}
+              </div>
+            )}
+
+            {/* Submit Button */}
+            <button
+              type="submit"
+              disabled={loading}
+              className="w-full mt-6 py-3 rounded-xl bg-gradient-to-r from-indigo-600 via-indigo-500 to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-white font-bold text-sm shadow-xl shadow-indigo-500/25 flex items-center justify-center gap-2 active:scale-[0.99] transition-all duration-200 cursor-pointer disabled:opacity-50"
+            >
+              <span>{loading ? "Processing..." : isLoginForm ? "Sign In" : "Create Account"}</span>
+              <ArrowRight className="w-4 h-4" />
+            </button>
+          </form>
+
+          {/* Toggle Switch */}
+          <div className="text-center mt-6 pt-6 border-t border-slate-800/80">
+            <p className="text-xs text-slate-400">
+              {isLoginForm ? "New to DevDate?" : "Already have an account?"}{" "}
+              <button
+                type="button"
+                onClick={() => {
+                  setIsLoginForm(!isLoginForm);
+                  setError("");
+                }}
+                className="text-indigo-400 hover:text-indigo-300 font-semibold cursor-pointer underline underline-offset-4 ml-1"
+              >
+                {isLoginForm ? "Create an account" : "Sign in instead"}
+              </button>
+            </p>
+          </div>
         </div>
-        <p
-          className="text-sm text-center text-gray-600 mt-4 cursor-pointer hover:underline"
-          onClick={() => setIsLoginForm(!isLoginForm)}
-        >
-          {isLoginForm
-            ? "Don't have an account? Sign Up"
-            : "Already have an account? Login"}
-        </p>
       </div>
     </div>
   );
