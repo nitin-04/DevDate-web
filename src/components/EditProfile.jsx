@@ -1,43 +1,111 @@
-import { useState } from "react";
-import UserCard from "./UserCard";
-import PropTypes from "prop-types";
-import axios from "axios";
-import { BASE_URL } from "../utils/constants";
-import { addUser } from "../utils/userSlice";
-import { useDispatch } from "react-redux";
-import confetti from "canvas-confetti";
-import { 
-  User, 
-  Sparkles, 
-  Terminal, 
-  Image, 
-  FileText, 
-  Save, 
-  Check, 
-  Plus, 
+import { useState, useRef } from 'react';
+import UserCard from './UserCard';
+import PropTypes from 'prop-types';
+import axios from 'axios';
+import { BASE_URL } from '../utils/constants';
+import { addUser } from '../utils/userSlice';
+import { useDispatch } from 'react-redux';
+import confetti from 'canvas-confetti';
+import {
+  User,
+  Sparkles,
+  Terminal,
+  Image,
+  FileText,
+  Save,
+  Check,
+  Plus,
   X,
-  Eye
-} from "lucide-react";
+  Eye,
+  UploadCloud,
+  Link2,
+  Trash2,
+  Camera,
+  Upload,
+} from 'lucide-react';
 
 const POPULAR_SKILLS = [
-  "React", "Node.js", "TypeScript", "JavaScript", "Python", 
-  "Rust", "Go", "Next.js", "MongoDB", "PostgreSQL", 
-  "Docker", "AWS", "TailwindCSS", "GraphQL", "Kubernetes"
+  'React',
+  'Node.js',
+  'TypeScript',
+  'JavaScript',
+  'Python',
+  'Rust',
+  'Go',
+  'Next.js',
+  'MongoDB',
+  'PostgreSQL',
+  'Docker',
+  'AWS',
+  'TailwindCSS',
+  'GraphQL',
+  'Kubernetes',
 ];
 
 const EditProfile = ({ user }) => {
-  const [firstName, setFirstName] = useState(user.firstName || "");
-  const [lastName, setLastName] = useState(user.lastName || "");
-  const [age, setAge] = useState(user.age || "");
-  const [gender, setGender] = useState(user.gender || "Other");
-  const [about, setAbout] = useState(user.about || "");
-  const [photoUrl, setPhotoUrl] = useState(user.photoUrl || "");
-  const [skills, setSkills] = useState(user.skills || ["React", "Node.js", "JavaScript"]);
-  const [customSkill, setCustomSkill] = useState("");
-  const [error, setError] = useState("");
+  const [firstName, setFirstName] = useState(user.firstName || '');
+  const [lastName, setLastName] = useState(user.lastName || '');
+  const [age, setAge] = useState(user.age || '');
+  const [gender, setGender] = useState(user.gender || 'Other');
+  const [about, setAbout] = useState(user.about || '');
+  const [photoUrl, setPhotoUrl] = useState(user.photoUrl || '');
+  const [photoMode, setPhotoMode] = useState('upload'); // 'upload' | 'url'
+  const [isDragging, setIsDragging] = useState(false);
+  const [fileName, setFileName] = useState('');
+  const [skills, setSkills] = useState(
+    user.skills || ['React', 'Node.js', 'JavaScript'],
+  );
+  const [customSkill, setCustomSkill] = useState('');
+  const [error, setError] = useState('');
   const [saving, setSaving] = useState(false);
   const [showToast, setShowToast] = useState(false);
+  const fileInputRef = useRef(null);
   const dispatch = useDispatch();
+
+  const handleFile = (file) => {
+    if (!file) return;
+    if (!file.type.startsWith('image/')) {
+      setError('Please drop a valid image file (PNG, JPG, WEBP, GIF, SVG).');
+      return;
+    }
+    if (file.size > 10 * 1024 * 1024) {
+      setError('Image file size should be less than 10MB.');
+      return;
+    }
+    setError('');
+    setFileName(file.name);
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      setPhotoUrl(e.target.result);
+    };
+    reader.readAsDataURL(file);
+  };
+
+  const handleDragOver = (e) => {
+    e.preventDefault();
+    setIsDragging(true);
+  };
+
+  const handleDragLeave = (e) => {
+    e.preventDefault();
+    setIsDragging(false);
+  };
+
+  const handleDrop = (e) => {
+    e.preventDefault();
+    setIsDragging(false);
+    if (e.dataTransfer.files && e.dataTransfer.files[0]) {
+      handleFile(e.dataTransfer.files[0]);
+    }
+  };
+
+  const clearPhoto = () => {
+    setPhotoUrl('');
+    setFileName('');
+    if (fileInputRef.current) {
+      fileInputRef.current.value = '';
+    }
+  };
 
   const toggleSkill = (skillName) => {
     if (skills.includes(skillName)) {
@@ -54,7 +122,7 @@ const EditProfile = ({ user }) => {
     const trimmed = customSkill.trim();
     if (trimmed && !skills.includes(trimmed) && skills.length < 10) {
       setSkills([...skills, trimmed]);
-      setCustomSkill("");
+      setCustomSkill('');
     }
   };
 
@@ -63,7 +131,7 @@ const EditProfile = ({ user }) => {
   };
 
   const saveProfile = async () => {
-    setError("");
+    setError('');
     setSaving(true);
 
     try {
@@ -78,7 +146,7 @@ const EditProfile = ({ user }) => {
           photoUrl,
           skills,
         },
-        { withCredentials: true }
+        { withCredentials: true },
       );
 
       dispatch(addUser(res?.data?.data));
@@ -88,15 +156,19 @@ const EditProfile = ({ user }) => {
         particleCount: 90,
         spread: 70,
         origin: { y: 0.6 },
-        colors: ['#6366f1', '#10b981', '#f43f5e', '#38bdf8']
+        colors: ['#6366f1', '#10b981', '#f43f5e', '#38bdf8'],
       });
 
       setShowToast(true);
       setTimeout(() => setShowToast(false), 3500);
     } catch (err) {
-      const msg = err?.response?.data?.message || (typeof err?.response?.data === "string" ? err.response.data : "Failed to update profile.");
+      const msg =
+        err?.response?.data?.message ||
+        (typeof err?.response?.data === 'string'
+          ? err.response.data
+          : 'Failed to update profile.');
       setError(msg);
-      console.error("Error saving profile:", err);
+      console.error('Error saving profile:', err);
     } finally {
       setSaving(false);
     }
@@ -125,7 +197,9 @@ const EditProfile = ({ user }) => {
         <div className="lg:col-span-7 bg-slate-900/80 border border-slate-800/90 rounded-3xl p-6 sm:p-8 shadow-2xl backdrop-blur-xl space-y-6">
           <div className="flex items-center gap-2 pb-4 border-b border-slate-800/80">
             <User className="w-5 h-5 text-indigo-400" />
-            <h2 className="text-xl font-bold text-white">General Information</h2>
+            <h2 className="text-xl font-bold text-white">
+              General Information
+            </h2>
           </div>
 
           <div className="grid sm:grid-cols-2 gap-4">
@@ -189,21 +263,132 @@ const EditProfile = ({ user }) => {
             </div>
           </div>
 
-          {/* Photo URL */}
-          <div className="space-y-1.5">
+          {/* Avatar Photo: Drag & Drop + URL Tabs */}
+          <div className="space-y-2.5 pt-2 border-t border-slate-800/80">
             <div className="flex items-center justify-between">
               <label className="text-xs font-semibold text-slate-300 uppercase tracking-wider flex items-center gap-1.5">
-                <Image className="w-3.5 h-3.5 text-indigo-400" />
-                <span>Avatar / Profile Photo URL</span>
+                <Camera className="w-3.5 h-3.5 text-indigo-400" />
+                <span>Avatar / Profile Photo</span>
               </label>
+
+              {/* Mode Toggle Tabs */}
+              <div className="flex items-center bg-slate-950/80 border border-slate-800 rounded-lg p-0.5 text-xs">
+                <button
+                  type="button"
+                  onClick={() => setPhotoMode('upload')}
+                  className={`flex items-center gap-1 px-2.5 py-1 rounded-md transition-all ${
+                    photoMode === 'upload'
+                      ? 'bg-indigo-600 text-white font-semibold shadow'
+                      : 'text-slate-400 hover:text-slate-200'
+                  }`}
+                >
+                  <UploadCloud className="w-3 h-3" />
+                  <span>Drag & Drop</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setPhotoMode('url')}
+                  className={`flex items-center gap-1 px-2.5 py-1 rounded-md transition-all ${
+                    photoMode === 'url'
+                      ? 'bg-indigo-600 text-white font-semibold shadow'
+                      : 'text-slate-400 hover:text-slate-200'
+                  }`}
+                >
+                  <Link2 className="w-3 h-3" />
+                  <span>Image URL</span>
+                </button>
+              </div>
             </div>
-            <input
-              type="url"
-              value={photoUrl}
-              onChange={(e) => setPhotoUrl(e.target.value)}
-              placeholder="https://..."
-              className="w-full px-4 py-2.5 rounded-xl bg-slate-950/80 border border-slate-800 text-slate-100 placeholder-slate-500 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/50 focus:border-indigo-500/50 transition-all"
-            />
+
+            {photoMode === 'upload' ? (
+              /* Drag & Drop Zone */
+              <div
+                onDragOver={handleDragOver}
+                onDragLeave={handleDragLeave}
+                onDrop={handleDrop}
+                onClick={() => fileInputRef.current?.click()}
+                className={`relative border-2 border-dashed rounded-2xl p-6 flex flex-col items-center justify-center text-center cursor-pointer transition-all duration-200 ${
+                  isDragging
+                    ? 'border-indigo-400 bg-indigo-500/10 scale-[1.01]'
+                    : 'border-slate-800 hover:border-slate-700 bg-slate-950/60 hover:bg-slate-950/90'
+                }`}
+              >
+                <input
+                  ref={fileInputRef}
+                  type="file"
+                  accept="image/*"
+                  onChange={(e) => {
+                    if (e.target.files && e.target.files[0]) {
+                      handleFile(e.target.files[0]);
+                    }
+                  }}
+                  className="hidden"
+                />
+
+                {photoUrl ? (
+                  <div className="flex flex-col items-center space-y-3">
+                    <div className="relative w-20 h-20 rounded-2xl overflow-hidden border-2 border-indigo-500/40 shadow-lg">
+                      <img
+                        src={photoUrl}
+                        alt="Preview"
+                        className="w-full h-full object-cover"
+                      />
+                    </div>
+                    <div className="text-center">
+                      <p className="text-xs font-semibold text-slate-200 truncate max-w-[200px]">
+                        {fileName || 'Photo Selected'}
+                      </p>
+                      <p className="text-[11px] text-slate-400">
+                        Drag & drop a new photo to replace
+                      </p>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        clearPhoto();
+                      }}
+                      className="inline-flex items-center gap-1 text-xs text-rose-400 hover:text-rose-300 font-medium px-2.5 py-1 rounded-lg bg-rose-500/10 hover:bg-rose-500/20 border border-rose-500/20 transition-all cursor-pointer"
+                    >
+                      <Trash2 className="w-3 h-3" />
+                      <span>Remove Photo</span>
+                    </button>
+                  </div>
+                ) : (
+                  <div className="flex flex-col items-center space-y-2">
+                    <div className="w-12 h-12 rounded-2xl bg-indigo-600/15 border border-indigo-500/30 flex items-center justify-center text-indigo-400 mb-1">
+                      <UploadCloud className="w-6 h-6" />
+                    </div>
+                    <p className="text-xs sm:text-sm font-semibold text-slate-200">
+                      Drag & Drop your photo here, or{' '}
+                      <span className="text-indigo-400 underline underline-offset-2">
+                        browse files
+                      </span>
+                    </p>
+                    <p className="text-[11px] text-slate-500">
+                      Supports JPG, PNG, WEBP, GIF, SVG (up to 10MB)
+                    </p>
+                  </div>
+                )}
+              </div>
+            ) : (
+              /* Image URL Input */
+              <div className="space-y-1.5">
+                <div className="relative">
+                  <Link2 className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
+                  <input
+                    type="url"
+                    value={photoUrl}
+                    onChange={(e) => setPhotoUrl(e.target.value)}
+                    placeholder="https://images.unsplash.com/photo-..."
+                    className="w-full pl-10 pr-4 py-2.5 rounded-xl bg-slate-950/80 border border-slate-800 text-slate-100 placeholder-slate-500 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/50 focus:border-indigo-500/50 transition-all"
+                  />
+                </div>
+                <p className="text-[11px] text-slate-500">
+                  Paste a direct link to an image on the web.
+                </p>
+              </div>
+            )}
           </div>
 
           {/* About / Bio */}
@@ -228,7 +413,9 @@ const EditProfile = ({ user }) => {
                 <Terminal className="w-3.5 h-3.5 text-indigo-400" />
                 <span>Tech Stack (Select up to 10)</span>
               </label>
-              <span className="text-xs text-slate-400 font-mono">{skills.length}/10</span>
+              <span className="text-xs text-slate-400 font-mono">
+                {skills.length}/10
+              </span>
             </div>
 
             {/* Popular Skills Chips */}
@@ -242,8 +429,8 @@ const EditProfile = ({ user }) => {
                     onClick={() => toggleSkill(skill)}
                     className={`px-3 py-1 rounded-full text-xs font-mono transition-all duration-200 cursor-pointer ${
                       isSelected
-                        ? "bg-indigo-600 text-white font-bold shadow-md shadow-indigo-500/25 border border-indigo-400/40 scale-105"
-                        : "bg-slate-950/80 text-slate-400 hover:text-slate-200 border border-slate-800 hover:border-slate-700"
+                        ? 'bg-indigo-600 text-white font-bold shadow-md shadow-indigo-500/25 border border-indigo-400/40 scale-105'
+                        : 'bg-slate-950/80 text-slate-400 hover:text-slate-200 border border-slate-800 hover:border-slate-700'
                     }`}
                   >
                     {isSelected ? `✓ ${skill}` : `+ ${skill}`}
@@ -255,7 +442,9 @@ const EditProfile = ({ user }) => {
             {/* Selected Skills Pills */}
             {skills.length > 0 && (
               <div className="p-3 rounded-2xl bg-slate-950/60 border border-slate-800/60">
-                <p className="text-[11px] text-slate-400 mb-2 font-mono uppercase">Current Stack:</p>
+                <p className="text-[11px] text-slate-400 mb-2 font-mono uppercase">
+                  Current Stack:
+                </p>
                 <div className="flex flex-wrap gap-1.5">
                   {skills.map((s) => (
                     <span
@@ -283,7 +472,7 @@ const EditProfile = ({ user }) => {
                 placeholder="Add custom skill (e.g. Solidity, Flutter)..."
                 value={customSkill}
                 onChange={(e) => setCustomSkill(e.target.value)}
-                onKeyDown={(e) => e.key === "Enter" && handleAddCustomSkill(e)}
+                onKeyDown={(e) => e.key === 'Enter' && handleAddCustomSkill(e)}
                 className="flex-1 px-4 py-2 rounded-xl bg-slate-950/80 border border-slate-800 text-slate-100 placeholder-slate-500 text-xs focus:outline-none focus:ring-2 focus:ring-indigo-500/50"
               />
               <button
@@ -332,13 +521,17 @@ const EditProfile = ({ user }) => {
 
           <UserCard
             user={{
-              firstName: firstName || "Your",
-              lastName: lastName || "Name",
+              firstName: firstName || 'Your',
+              lastName: lastName || 'Name',
               age: age || 25,
-              gender: gender || "Other",
-              photoUrl: photoUrl || "https://thehotelexperience.com/wp-content/uploads/2019/08/default-avatar.png",
-              about: about || "Your bio will be displayed here for other developers to read.",
-              skills: skills.length > 0 ? skills : ["JavaScript", "React"],
+              gender: gender || 'Other',
+              photoUrl:
+                photoUrl ||
+                'https://thehotelexperience.com/wp-content/uploads/2019/08/default-avatar.png',
+              about:
+                about ||
+                'Your bio will be displayed here for other developers to read.',
+              skills: skills.length > 0 ? skills : ['JavaScript', 'React'],
             }}
             showActions={false}
           />

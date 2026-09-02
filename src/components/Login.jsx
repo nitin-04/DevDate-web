@@ -15,8 +15,57 @@ import {
   Eye, 
   EyeOff, 
   ArrowRight, 
-  Sparkles 
+  Sparkles,
+  Check,
+  ShieldCheck,
+  AlertCircle
 } from "lucide-react";
+
+// Password strength evaluator based on OWASP & NIST standard
+const evaluatePasswordStrength = (pwd) => {
+  if (!pwd) return { score: 0, label: "", color: "", textColor: "", checks: [], isStrong: false };
+
+  const checks = [
+    { label: "At least 8 characters", met: pwd.length >= 8 },
+    { label: "One uppercase letter (A-Z)", met: /[A-Z]/.test(pwd) },
+    { label: "One lowercase letter (a-z)", met: /[a-z]/.test(pwd) },
+    { label: "One number (0-9)", met: /[0-9]/.test(pwd) },
+    { label: "One special character (!@#$%^&*)", met: /[^A-Za-z0-9]/.test(pwd) },
+  ];
+
+  const metCount = checks.filter((c) => c.met).length;
+
+  let label = "Weak";
+  let color = "bg-rose-500";
+  let textColor = "text-rose-400";
+
+  if (metCount === 5) {
+    label = "Very Strong";
+    color = "bg-emerald-400";
+    textColor = "text-emerald-400";
+  } else if (metCount === 4) {
+    label = "Strong";
+    color = "bg-teal-400";
+    textColor = "text-teal-400";
+  } else if (metCount === 3) {
+    label = "Fair";
+    color = "bg-amber-400";
+    textColor = "text-amber-400";
+  } else if (metCount >= 1) {
+    label = "Weak";
+    color = "bg-rose-500";
+    textColor = "text-rose-400";
+  }
+
+  return {
+    score: metCount,
+    label,
+    color,
+    textColor,
+    checks,
+    isStrong: metCount === 5,
+  };
+};
 
 const Login = () => {
   const [emailId, setEmailId] = useState("");
@@ -29,6 +78,8 @@ const Login = () => {
   const [loading, setLoading] = useState(false);
   const dispatch = useDispatch();
   const navigate = useNavigate();
+
+  const passwordStrength = evaluatePasswordStrength(password);
 
   const handleLogin = async (e) => {
     e?.preventDefault();
@@ -56,6 +107,13 @@ const Login = () => {
   const handleSignUp = async (e) => {
     e?.preventDefault();
     setError("");
+
+    // Strict client-side password strength gate
+    if (!passwordStrength.isStrong) {
+      setError("Please ensure your password satisfies all 5 security requirements.");
+      return;
+    }
+
     setLoading(true);
     try {
       const res = await axios.post(
@@ -160,10 +218,78 @@ const Login = () => {
               </button>
             </div>
 
+            {/* Real-time Password Strength Meter & Checklist (Only during Sign Up) */}
+            {!isLoginForm && password.length > 0 && (
+              <div className="space-y-3 pt-1">
+                {/* Segmented Strength Bar */}
+                <div>
+                  <div className="flex justify-between items-center text-xs mb-1.5 font-mono">
+                    <span className="text-slate-400 flex items-center gap-1">
+                      <ShieldCheck className="w-3.5 h-3.5 text-indigo-400" />
+                      <span>Security Strength</span>
+                    </span>
+                    <span className={`font-bold ${passwordStrength.textColor}`}>
+                      {passwordStrength.label}
+                    </span>
+                  </div>
+                  <div className="grid grid-cols-4 gap-1.5 h-1.5">
+                    {[1, 2, 3, 4].map((level) => {
+                      const active = passwordStrength.score >= (level === 4 ? 5 : level + 1);
+                      return (
+                        <div
+                          key={level}
+                          className={`rounded-full transition-all duration-300 ${
+                            active ? passwordStrength.color : "bg-slate-800"
+                          }`}
+                        />
+                      );
+                    })}
+                  </div>
+                </div>
+
+                {/* Dynamic Requirements Checklist */}
+                <div className="p-3.5 rounded-2xl bg-slate-950/70 border border-slate-800/80 space-y-2">
+                  <p className="text-[11px] font-semibold text-slate-400 uppercase tracking-wider">
+                    Password Requirements:
+                  </p>
+                  <div className="grid grid-cols-1 gap-1.5">
+                    {passwordStrength.checks.map((check, idx) => (
+                      <div
+                        key={idx}
+                        className="flex items-center gap-2 text-xs transition-colors duration-200"
+                      >
+                        <div
+                          className={`w-4 h-4 rounded-full flex items-center justify-center transition-all ${
+                            check.met
+                              ? "bg-emerald-500/20 text-emerald-400 border border-emerald-500/40"
+                              : "bg-slate-800/60 text-slate-500 border border-slate-700/50"
+                          }`}
+                        >
+                          {check.met ? (
+                            <Check className="w-2.5 h-2.5 stroke-[3]" />
+                          ) : (
+                            <span className="w-1 h-1 rounded-full bg-slate-500" />
+                          )}
+                        </div>
+                        <span
+                          className={
+                            check.met ? "text-slate-200 font-medium" : "text-slate-400"
+                          }
+                        >
+                          {check.label}
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            )}
+
             {/* Error Message */}
             {error && (
-              <div className="p-3 rounded-xl bg-rose-500/10 border border-rose-500/30 text-rose-400 text-xs leading-relaxed">
-                {error}
+              <div className="p-3 rounded-xl bg-rose-500/10 border border-rose-500/30 text-rose-400 text-xs leading-relaxed flex items-start gap-2">
+                <AlertCircle className="w-4 h-4 flex-shrink-0 mt-0.5" />
+                <span>{error}</span>
               </div>
             )}
 
