@@ -1,11 +1,11 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import axios from "axios";
 import { useDispatch } from "react-redux";
 import { addUser } from "../utils/userSlice";
 import { clearFeed } from "../utils/feedSlice";
 import { removeConnections } from "../utils/connectionSlice";
 import { clearRequests } from "../utils/requestSlice";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { BASE_URL } from "../utils/constants";
 import { 
   Code2, 
@@ -68,16 +68,26 @@ const evaluatePasswordStrength = (pwd) => {
 };
 
 const Login = () => {
+  const location = useLocation();
+  const navigate = useNavigate();
+  const dispatch = useDispatch();
+
+  const isSignUpUrl = location.pathname === "/signup";
+  const [isLoginForm, setIsLoginForm] = useState(!isSignUpUrl);
+
   const [emailId, setEmailId] = useState("");
   const [password, setPassword] = useState("");
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
   const [showPassword, setShowPassword] = useState(false);
-  const [isLoginForm, setIsLoginForm] = useState(true);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
-  const dispatch = useDispatch();
-  const navigate = useNavigate();
+
+  // Sync state whenever URL changes between /login and /signup
+  useEffect(() => {
+    setIsLoginForm(location.pathname !== "/signup");
+    setError("");
+  }, [location.pathname]);
 
   const passwordStrength = evaluatePasswordStrength(password);
 
@@ -166,8 +176,9 @@ const Login = () => {
                   <input
                     type="text"
                     placeholder="First Name"
+                    maxLength={25}
                     value={firstName}
-                    onChange={(e) => setFirstName(e.target.value)}
+                    onChange={(e) => setFirstName(e.target.value.slice(0, 25))}
                     required
                     className="w-full pl-10 pr-3 py-2.5 rounded-xl bg-slate-950/80 border border-slate-800 text-sm text-slate-100 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/50 focus:border-indigo-500/50 transition-all"
                   />
@@ -177,8 +188,9 @@ const Login = () => {
                   <input
                     type="text"
                     placeholder="Last Name"
+                    maxLength={25}
                     value={lastName}
-                    onChange={(e) => setLastName(e.target.value)}
+                    onChange={(e) => setLastName(e.target.value.slice(0, 25))}
                     className="w-full pl-10 pr-3 py-2.5 rounded-xl bg-slate-950/80 border border-slate-800 text-sm text-slate-100 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/50 focus:border-indigo-500/50 transition-all"
                   />
                 </div>
@@ -311,8 +323,8 @@ const Login = () => {
               <button
                 type="button"
                 onClick={() => {
-                  setIsLoginForm(!isLoginForm);
                   setError("");
+                  navigate(isLoginForm ? "/signup" : "/login");
                 }}
                 className="text-indigo-400 hover:text-indigo-300 font-semibold cursor-pointer underline underline-offset-4 ml-1"
               >

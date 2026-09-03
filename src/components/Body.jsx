@@ -1,4 +1,4 @@
-import { Outlet, useNavigate } from "react-router-dom";
+import { Outlet, useNavigate, useLocation } from "react-router-dom";
 import NavBar from "./NavBar";
 import Footer from "./Footer";
 import axios from "axios";
@@ -11,6 +11,7 @@ import { useDispatch, useSelector } from "react-redux";
 const Body = () => {
     const dispatch = useDispatch();
     const navigate = useNavigate();
+    const location = useLocation();
     const user = useSelector((store) => store.user);
 
     const fetchUser = async () => {
@@ -24,7 +25,9 @@ const Body = () => {
         }
         catch (err) {
             if (err.response?.status === 401 || err.status === 401) {
-                navigate("/login");
+                if (location.pathname !== "/signup" && location.pathname !== "/login") {
+                    navigate("/login");
+                }
             }
             console.error(err);
         }

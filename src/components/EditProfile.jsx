@@ -1,6 +1,6 @@
 import { useState, useRef } from 'react';
 import UserCard from './UserCard';
-import PropTypes from 'prop-types';
+import PropTypes, { number } from 'prop-types';
 import axios from 'axios';
 import { BASE_URL } from '../utils/constants';
 import { addUser } from '../utils/userSlice';
@@ -47,6 +47,20 @@ const EditProfile = ({ user }) => {
   const [lastName, setLastName] = useState(user.lastName || '');
   const [age, setAge] = useState(user.age || '');
   const [gender, setGender] = useState(user.gender || 'Other');
+  const [githubUrl, setgithubUrl] = useState(user.githubUrl || '');
+  const [linkedInUrl, setLinkedInUrl] = useState(user.linkedInUrl || '');
+  const [role, setRole] = useState(
+    Array.isArray(user.role)
+      ? user.role.join(', ')
+      : typeof user.role === 'string'
+        ? user.role
+        : '',
+  );
+  const [experienceYears, setExperienceYears] = useState(
+    user.experienceYears !== undefined && user.experienceYears !== null
+      ? user.experienceYears
+      : '',
+  );
   const [about, setAbout] = useState(user.about || '');
   const [photoUrl, setPhotoUrl] = useState(user.photoUrl || '');
   const [photoMode, setPhotoMode] = useState('upload'); // 'upload' | 'url'
@@ -135,19 +149,9 @@ const EditProfile = ({ user }) => {
     setSaving(true);
 
     try {
-      const res = await axios.patch(
-        `${BASE_URL}/profile/edit`,
-        {
-          firstName,
-          lastName,
-          age: age ? Number(age) : undefined,
-          gender,
-          about,
-          photoUrl,
-          skills,
-        },
-        { withCredentials: true },
-      );
+      const res = await axios.patch(`${BASE_URL}/profile/edit`, payload, {
+        withCredentials: true,
+      });
 
       dispatch(addUser(res?.data?.data));
 
@@ -205,13 +209,19 @@ const EditProfile = ({ user }) => {
           <div className="grid sm:grid-cols-2 gap-4">
             {/* First Name */}
             <div className="space-y-1.5">
-              <label className="text-xs font-semibold text-slate-300 uppercase tracking-wider">
-                First Name
-              </label>
+              <div className="flex items-center justify-between">
+                <label className="text-xs font-semibold text-slate-300 uppercase tracking-wider">
+                  First Name
+                </label>
+                <span className="text-[10px] text-slate-400 font-mono">
+                  {firstName.length}/25
+                </span>
+              </div>
               <input
                 type="text"
+                maxLength={25}
                 value={firstName}
-                onChange={(e) => setFirstName(e.target.value)}
+                onChange={(e) => setFirstName(e.target.value.slice(0, 25))}
                 placeholder="e.g. Alex"
                 className="w-full px-4 py-2.5 rounded-xl bg-slate-950/80 border border-slate-800 text-slate-100 placeholder-slate-500 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/50 focus:border-indigo-500/50 transition-all"
               />
@@ -219,13 +229,19 @@ const EditProfile = ({ user }) => {
 
             {/* Last Name */}
             <div className="space-y-1.5">
-              <label className="text-xs font-semibold text-slate-300 uppercase tracking-wider">
-                Last Name
-              </label>
+              <div className="flex items-center justify-between">
+                <label className="text-xs font-semibold text-slate-300 uppercase tracking-wider">
+                  Last Name
+                </label>
+                <span className="text-[10px] text-slate-400 font-mono">
+                  {lastName.length}/25
+                </span>
+              </div>
               <input
                 type="text"
+                maxLength={25}
                 value={lastName}
-                onChange={(e) => setLastName(e.target.value)}
+                onChange={(e) => setLastName(e.target.value.slice(0, 25))}
                 placeholder="e.g. Chen"
                 className="w-full px-4 py-2.5 rounded-xl bg-slate-950/80 border border-slate-800 text-slate-100 placeholder-slate-500 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/50 focus:border-indigo-500/50 transition-all"
               />
@@ -239,9 +255,15 @@ const EditProfile = ({ user }) => {
               <input
                 type="number"
                 value={age}
-                onChange={(e) => setAge(e.target.value)}
+                onChange={(e) => {
+                  const val = e.target.value;
+                  if (val === '' || val.length <= 2) {
+                    setAge(val);
+                  }
+                }}
                 placeholder="e.g. 24"
                 min="18"
+                max="99"
                 className="w-full px-4 py-2.5 rounded-xl bg-slate-950/80 border border-slate-800 text-slate-100 placeholder-slate-500 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/50 focus:border-indigo-500/50 transition-all"
               />
             </div>
@@ -260,6 +282,68 @@ const EditProfile = ({ user }) => {
                 <option value="Female">Female</option>
                 <option value="Other">Other</option>
               </select>
+            </div>
+
+            <div className="space-y-1.5">
+              <label className="text-xs font-semibold text-slate-300 uppercase tracking-wider">
+                Experience Years
+              </label>
+              <input
+                type="number"
+                value={experienceYears}
+                onChange={(e) => {
+                  const val = e.target.value;
+                  if (val === '' || val.length <= 2) {
+                    setExperienceYears(val);
+                  }
+                }}
+                placeholder="e.g. 5"
+                min="0"
+                max="99"
+                className="w-full px-4 py-2.5 rounded-xl bg-slate-950/80 border border-slate-800 text-slate-100 placeholder-slate-500 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/50 focus:border-indigo-500/50 transition-all"
+              />
+            </div>
+            <div className="space-y-1.5">
+              <div className="flex items-center justify-between">
+                <label className="text-xs font-semibold text-slate-300 uppercase tracking-wider">
+                  Role
+                </label>
+                <span className="text-[10px] text-slate-400 font-mono">
+                  {role.length}/40
+                </span>
+              </div>
+              <input
+                type="text"
+                maxLength={40}
+                value={role}
+                onChange={(e) => setRole(e.target.value.slice(0, 40))}
+                placeholder="e.g. FrontEnd Developer"
+                className="w-full px-4 py-2.5 rounded-xl bg-slate-950/80 border border-slate-800 text-slate-100 placeholder-slate-500 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/50 focus:border-indigo-500/50 transition-all"
+              />
+            </div>
+            <div className="space-y-1.5">
+              <label className="text-xs font-semibold text-slate-300 uppercase tracking-wider">
+                GItHub URL
+              </label>
+              <input
+                type="text"
+                value={githubUrl}
+                onChange={(e) => setgithubUrl(e.target.value)}
+                placeholder="e.g. https://github.com/alex"
+                className="w-full px-4 py-2.5 rounded-xl bg-slate-950/80 border border-slate-800 text-slate-100 placeholder-slate-500 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/50 focus:border-indigo-500/50 transition-all"
+              />
+            </div>
+            <div className="space-y-1.5">
+              <label className="text-xs font-semibold text-slate-300 uppercase tracking-wider">
+                LinkedIn URL
+              </label>
+              <input
+                type="text"
+                value={linkedInUrl}
+                onChange={(e) => setLinkedInUrl(e.target.value)}
+                placeholder="e.g. https://www.linkedin.com/alex"
+                className="w-full px-4 py-2.5 rounded-xl bg-slate-950/80 border border-slate-800 text-slate-100 placeholder-slate-500 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/50 focus:border-indigo-500/50 transition-all"
+              />
             </div>
           </div>
 
@@ -393,14 +477,20 @@ const EditProfile = ({ user }) => {
 
           {/* About / Bio */}
           <div className="space-y-1.5">
-            <label className="text-xs font-semibold text-slate-300 uppercase tracking-wider flex items-center gap-1.5">
-              <FileText className="w-3.5 h-3.5 text-indigo-400" />
-              <span>About Bio</span>
-            </label>
+            <div className="flex items-center justify-between">
+              <label className="text-xs font-semibold text-slate-300 uppercase tracking-wider flex items-center gap-1.5">
+                <FileText className="w-3.5 h-3.5 text-indigo-400" />
+                <span>About Bio</span>
+              </label>
+              <span className="text-[10px] text-slate-400 font-mono">
+                {about.length}/200
+              </span>
+            </div>
             <textarea
               rows={3}
+              maxLength={200}
               value={about}
-              onChange={(e) => setAbout(e.target.value)}
+              onChange={(e) => setAbout(e.target.value.slice(0, 200))}
               placeholder="What are you building? What kind of collaborator are you looking for?"
               className="w-full px-4 py-2.5 rounded-xl bg-slate-950/80 border border-slate-800 text-slate-100 placeholder-slate-500 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/50 focus:border-indigo-500/50 transition-all leading-relaxed"
             />
@@ -524,7 +614,9 @@ const EditProfile = ({ user }) => {
               firstName: firstName || 'Your',
               lastName: lastName || 'Name',
               age: age || 25,
+              role: role,
               gender: gender || 'Other',
+              experienceYears: experienceYears,
               photoUrl:
                 photoUrl ||
                 'https://thehotelexperience.com/wp-content/uploads/2019/08/default-avatar.png',
@@ -532,6 +624,8 @@ const EditProfile = ({ user }) => {
                 about ||
                 'Your bio will be displayed here for other developers to read.',
               skills: skills.length > 0 ? skills : ['JavaScript', 'React'],
+              githubUrl: githubUrl,
+              linkedInUrl: linkedInUrl,
             }}
             showActions={false}
           />
@@ -557,6 +651,10 @@ EditProfile.propTypes = {
     lastName: PropTypes.string,
     age: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
     gender: PropTypes.string,
+    role: PropTypes.string,
+    experienceYears: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
+    linkedInUrl: PropTypes.string,
+    githubUrl: PropTypes.string,
     photoUrl: PropTypes.string,
     about: PropTypes.string,
     skills: PropTypes.arrayOf(PropTypes.string),

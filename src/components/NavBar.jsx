@@ -184,12 +184,20 @@ const NavBar = () => {
             </div>
           </div>
         ) : (
-          <Link
-            to="/login"
-            className="px-5 py-2 rounded-full bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-white text-sm font-semibold shadow-md shadow-indigo-500/25 transition-all duration-200"
-          >
-            Get Started
-          </Link>
+          <div className="flex items-center gap-2 sm:gap-3">
+            <Link
+              to="/login"
+              className="px-4 py-2 text-sm font-semibold text-slate-300 hover:text-white transition-colors"
+            >
+              Sign In
+            </Link>
+            <Link
+              to="/signup"
+              className="px-5 py-2 rounded-full bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-white text-sm font-semibold shadow-md shadow-indigo-500/25 transition-all duration-200"
+            >
+              Get Started
+            </Link>
+          </div>
         )}
       </div>
     </nav>
