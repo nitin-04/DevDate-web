@@ -1,8 +1,8 @@
 import PropTypes from 'prop-types';
-import { BASE_URL } from '../utils/constants';
-import axios from 'axios';
+import apiClient from '../api/apiClient';
 import { LuX, LuHeart, LuSparkles, LuTerminal, LuMapPin, LuBriefcase, LuGithub, LuLinkedin } from 'react-icons/lu';
 import { useDispatch } from 'react-redux';
+import { removeUserFromFeed } from '../utils/feedSlice';
 
 const SKILL_COLORS = [
   'bg-blue-500/15 text-blue-400 border-blue-500/30',
@@ -38,11 +38,7 @@ const UserCard = ({ user, showActions = true, onAction }) => {
       return;
     }
     try {
-      await axios.post(
-        BASE_URL + '/request/send/' + status + '/' + userId,
-        {},
-        { withCredentials: true },
-      );
+      await apiClient.post('/requests/send/' + status + '/' + userId);
       dispatch(removeUserFromFeed(userId));
     } catch (err) {
       console.error('Error sending connection request:', err);

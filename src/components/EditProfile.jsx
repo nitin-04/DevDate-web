@@ -1,11 +1,11 @@
 import { useState, useRef } from 'react';
 import UserCard from './UserCard';
 import PropTypes, { number } from 'prop-types';
-import axios from 'axios';
-import { BASE_URL } from '../utils/constants';
+import apiClient from '../api/apiClient';
 import { addUser } from '../utils/userSlice';
 import { useDispatch } from 'react-redux';
 import confetti from 'canvas-confetti';
+import { toast } from 'react-toastify';
 import {
   LuUser,
   LuSparkles,
@@ -71,28 +71,26 @@ const EditProfile = ({ user }) => {
     user.skills || ['React', 'Node.js', 'JavaScript'],
   );
   const [customSkill, setCustomSkill] = useState('');
-  const [error, setError] = useState('');
   const [saving, setSaving] = useState(false);
-  const [showToast, setShowToast] = useState(false);
   const fileInputRef = useRef(null);
   const dispatch = useDispatch();
 
   const handleFile = (file) => {
     if (!file) return;
     if (!file.type.startsWith('image/')) {
-      setError('Please drop a valid image file (PNG, JPG, WEBP, GIF, SVG).');
+      toast.error('Please drop a valid image file (PNG, JPG, WEBP, GIF, SVG).');
       return;
     }
     if (file.size > 5 * 1024 * 1024) {
-      setError('Image file size should be less than 5MB.');
+      toast.error('Image file size should be less than 5MB.');
       return;
     }
-    setError('');
     setFileName(file.name);
     setSelectedFile(file);
     // Instant browser preview via object URL (zero Base64 memory overhead)
     const previewUrl = URL.createObjectURL(file);
     setPhotoUrl(previewUrl);
+    toast.info('Image preview ready. Click Save Changes to apply.');
   };
 
   const handleDragOver = (e) => {
@@ -146,7 +144,6 @@ const EditProfile = ({ user }) => {
   };
 
   const saveProfile = async () => {
-    setError('');
     setSaving(true);
 
     try {
@@ -157,11 +154,10 @@ const EditProfile = ({ user }) => {
         const formData = new FormData();
         formData.append('photo', selectedFile);
 
-        const uploadRes = await axios.post(
-          `${BASE_URL}/profile/upload-photo`,
+        const uploadRes = await apiClient.post(
+          '/profile/upload-photo',
           formData,
           {
-            withCredentials: true,
             headers: {
               'Content-Type': 'multipart/form-data',
             },
@@ -190,9 +186,7 @@ const EditProfile = ({ user }) => {
         linkedInUrl,
       };
 
-      const res = await axios.patch(`${BASE_URL}/profile/edit`, payload, {
-        withCredentials: true,
-      });
+      const res = await apiClient.patch('/profile/edit', payload);
 
       dispatch(addUser(res?.data?.data));
 
@@ -204,15 +198,14 @@ const EditProfile = ({ user }) => {
         colors: ['#6366f1', '#10b981', '#f43f5e', '#38bdf8'],
       });
 
-      setShowToast(true);
-      setTimeout(() => setShowToast(false), 3500);
+      toast.success('Profile successfully updated!');
     } catch (err) {
       const msg =
         err?.response?.data?.message ||
         (typeof err?.response?.data === 'string'
           ? err.response.data
           : 'Failed to update profile.');
-      setError(msg);
+      toast.error(msg);
       console.error('Error saving profile:', err);
     } finally {
       setSaving(false);
@@ -617,13 +610,6 @@ const EditProfile = ({ user }) => {
             </div>
           </div>
 
-          {/* Error Banner */}
-          {error && (
-            <div className="p-3 rounded-xl bg-rose-500/10 border border-rose-500/30 text-rose-400 text-sm">
-              {error}
-            </div>
-          )}
-
           {/* Save Button */}
           <div className="pt-2">
             <button
@@ -672,16 +658,6 @@ const EditProfile = ({ user }) => {
           />
         </div>
       </div>
-
-      {/* Floating Success Toast */}
-      {showToast && (
-        <div className="fixed bottom-6 right-6 z-50 animate-bounce">
-          <div className="flex items-center gap-2.5 px-5 py-3 rounded-2xl bg-emerald-600 text-white font-bold text-sm shadow-2xl shadow-emerald-500/40 border border-emerald-400/30">
-            <LuCheck className="w-4 h-4" />
-            <span>Profile successfully updated!</span>
-          </div>
-        </div>
-      )}
     </div>
   );
 };

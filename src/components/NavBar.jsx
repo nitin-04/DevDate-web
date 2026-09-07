@@ -1,7 +1,7 @@
 import { useDispatch, useSelector } from "react-redux";
 import { Link, useNavigate, useLocation } from "react-router-dom";
-import { BASE_URL } from "../utils/constants";
-import axios from "axios";
+import apiClient from "../api/apiClient";
+import { toast } from "react-toastify";
 import { removeUser } from "../utils/userSlice";
 import { clearFeed } from "../utils/feedSlice";
 import { removeConnections } from "../utils/connectionSlice";
@@ -26,13 +26,15 @@ const NavBar = () => {
 
   const handleLogout = async () => {
     try {
-      await axios.post(BASE_URL + "/logout", {}, { withCredentials: true });
+      await apiClient.post("/auth/logout");
       dispatch(removeUser());
       dispatch(clearFeed());
       dispatch(removeConnections());
       dispatch(clearRequests());
+      toast.info("Logged out successfully");
       navigate("/login");
     } catch (err) {
+      toast.error("Logout failed. Please try again.");
       console.error("Logout error:", err);
     }
   };

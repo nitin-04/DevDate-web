@@ -1,12 +1,12 @@
 import { useState, useEffect } from "react";
-import axios from "axios";
+import apiClient from "../api/apiClient";
 import { useDispatch } from "react-redux";
 import { addUser } from "../utils/userSlice";
 import { clearFeed } from "../utils/feedSlice";
 import { removeConnections } from "../utils/connectionSlice";
 import { clearRequests } from "../utils/requestSlice";
 import { useNavigate, useLocation } from "react-router-dom";
-import { BASE_URL } from "../utils/constants";
+import { toast } from "react-toastify";
 import { 
   LuCodeXml, 
   LuMail, 
@@ -96,19 +96,17 @@ const Login = () => {
     setError("");
     setLoading(true);
     try {
-      const res = await axios.post(
-        BASE_URL + "/login",
-        { emailId, password },
-        { withCredentials: true }
-      );
+      const res = await apiClient.post("/auth/login", { emailId, password });
       dispatch(clearFeed());
       dispatch(removeConnections());
       dispatch(clearRequests());
       dispatch(addUser(res.data));
+      toast.success(`Welcome back, ${res?.data?.firstName || "developer"}!`);
       navigate("/");
     } catch (err) {
       const msg = err?.response?.data?.message || (typeof err?.response?.data === "string" ? err.response.data : "Invalid credentials. Please try again.");
       setError(msg);
+      toast.error(msg);
     } finally {
       setLoading(false);
     }
@@ -120,25 +118,30 @@ const Login = () => {
 
     // Strict client-side password strength gate
     if (!passwordStrength.isStrong) {
-      setError("Please ensure your password satisfies all 5 security requirements.");
+      const msg = "Please ensure your password satisfies all 5 security requirements.";
+      setError(msg);
+      toast.warning(msg);
       return;
     }
 
     setLoading(true);
     try {
-      const res = await axios.post(
-        BASE_URL + "/signup",
-        { firstName, lastName, emailId, password },
-        { withCredentials: true }
-      );
+      const res = await apiClient.post("/auth/signup", {
+        firstName,
+        lastName,
+        emailId,
+        password,
+      });
       dispatch(clearFeed());
       dispatch(removeConnections());
       dispatch(clearRequests());
       dispatch(addUser(res.data.data));
+      toast.success("Account created successfully! Welcome to DevDate.");
       navigate("/profile");
     } catch (err) {
       const msg = err?.response?.data?.message || (typeof err?.response?.data === "string" ? err.response.data : "Failed to create account.");
       setError(msg);
+      toast.error(msg);
     } finally {
       setLoading(false);
     }

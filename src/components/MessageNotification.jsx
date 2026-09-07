@@ -1,8 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import { useSelector } from "react-redux";
 import { useNavigate, useLocation } from "react-router-dom";
-import axios from "axios";
-import { BASE_URL } from "../utils/constants";
+import apiClient from "../api/apiClient";
 import { createSocketConnection } from "../utils/socket";
 import { LuMessageCircle, LuX, LuSparkles } from "react-icons/lu";
 import { motion, AnimatePresence } from "framer-motion";
@@ -22,9 +21,7 @@ const MessageNotification = () => {
   const fetchUnreadCount = async () => {
     if (!user?._id) return;
     try {
-      const res = await axios.get(`${BASE_URL}/chat/unread`, {
-        withCredentials: true,
-      });
+      const res = await apiClient.get('/chat/unread');
       const { totalUnread, unreadSenders } = res.data;
       setUnreadCount(totalUnread || 0);
 
@@ -61,12 +58,12 @@ const MessageNotification = () => {
     if (location.pathname.startsWith("/chat/")) {
       const targetUserId = location.pathname.split("/chat/")[1];
       if (targetUserId) {
-        axios
-          .post(`${BASE_URL}/chat/${targetUserId}/read`, {}, { withCredentials: true })
+        apiClient
+          .post(`/chat/${targetUserId}/read`)
           .then(() => {
             // Re-fetch remaining unread count
-            axios
-              .get(`${BASE_URL}/chat/unread`, { withCredentials: true })
+            apiClient
+              .get('/chat/unread')
               .then((res) => setUnreadCount(res.data.totalUnread || 0))
               .catch(() => {});
           })

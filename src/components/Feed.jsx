@@ -1,9 +1,9 @@
 import { useState, useEffect, useCallback } from 'react';
-import axios from 'axios';
+import apiClient from '../api/apiClient';
 import { useDispatch, useSelector } from 'react-redux';
-import { BASE_URL } from '../utils/constants';
 import { addfeed, removeUserFromFeed } from '../utils/feedSlice';
 import UserCard from './UserCard';
+import { toast } from 'react-toastify';
 import {
   motion,
   AnimatePresence,
@@ -14,12 +14,8 @@ import confetti from 'canvas-confetti';
 import {
   LuRadar,
   LuRotateCcw,
-  LuSparkles,
-  LuFlame,
   LuCheck,
   LuX,
-  LuKeyboard,
-  LuHeart,
 } from 'react-icons/lu';
 
 // Card animation variants with explicit direction support
@@ -70,27 +66,25 @@ const SwipeableCard = ({ user, onSwipe, direction }) => {
       animate="animate"
       exit="exit"
     >
-      <div className="relative">
-        {/* LIKE Stamp */}
-        <motion.div
-          style={{ opacity: likeOpacity }}
-          className="absolute top-6 left-6 z-30 pointer-events-none border-4 border-emerald-400 text-emerald-400 font-black text-2xl px-4 py-1 rounded-xl rotate-[-15deg] shadow-2xl bg-slate-950/90 tracking-wider flex items-center gap-1.5"
-        >
-          <LuHeart className="w-6 h-6 fill-emerald-400" />
-          CONNECT
-        </motion.div>
+      <UserCard user={user} showActions={false} />
 
-        {/* NOPE Stamp */}
-        <motion.div
-          style={{ opacity: nopeOpacity }}
-          className="absolute top-6 right-6 z-30 pointer-events-none border-4 border-rose-500 text-rose-500 font-black text-2xl px-4 py-1 rounded-xl rotate-[15deg] shadow-2xl bg-slate-950/90 tracking-wider flex items-center gap-1.5"
-        >
-          <LuX className="w-6 h-6" />
-          PASS
-        </motion.div>
+      {/* LIKE Badge Overlay */}
+      <motion.div
+        style={{ opacity: likeOpacity }}
+        className="absolute top-8 left-8 border-4 border-emerald-400 text-emerald-400 font-black text-2xl px-4 py-1.5 rounded-2xl rotate-[-20deg] uppercase tracking-wider pointer-events-none bg-slate-950/60 backdrop-blur-md shadow-2xl z-20 flex items-center gap-1.5"
+      >
+        <LuCheck className="w-6 h-6 stroke-[3]" />
+        <span>CONNECT</span>
+      </motion.div>
 
-        <UserCard user={user} showActions={true} onAction={onSwipe} />
-      </div>
+      {/* NOPE Badge Overlay */}
+      <motion.div
+        style={{ opacity: nopeOpacity }}
+        className="absolute top-8 right-8 border-4 border-rose-500 text-rose-500 font-black text-2xl px-4 py-1.5 rounded-2xl rotate-[20deg] uppercase tracking-wider pointer-events-none bg-slate-950/60 backdrop-blur-md shadow-2xl z-20 flex items-center gap-1.5"
+      >
+        <LuX className="w-6 h-6 stroke-[3]" />
+        <span>PASS</span>
+      </motion.div>
     </motion.div>
   );
 };
@@ -126,11 +120,10 @@ const Feed = () => {
   const getFeed = useCallback(async () => {
     setLoading(true);
     try {
-      const res = await axios.get(BASE_URL + '/feed', {
-        withCredentials: true,
-      });
+      const res = await apiClient.get('/users/feed');
       dispatch(addfeed(res?.data));
     } catch (err) {
+      toast.error('Failed to load feed developers.');
       console.error('Error fetching feed:', err);
     } finally {
       setLoading(false);
@@ -153,16 +146,15 @@ const Feed = () => {
         origin: { y: 0.7 },
         colors: ['#6366f1', '#ec4899', '#10b981', '#38bdf8'],
       });
+      toast.success('Interest sent! Hope you connect.');
     }
 
     try {
-      await axios.post(
-        BASE_URL + '/request/send/' + status + '/' + userId,
-        {},
-        { withCredentials: true },
-      );
+      await apiClient.post('/requests/send/' + status + '/' + userId);
       dispatch(removeUserFromFeed(userId));
     } catch (err) {
+      const msg = err?.response?.data?.message || 'Failed to send request.';
+      toast.error(msg);
       console.error('Error handling swipe:', err);
     }
   };

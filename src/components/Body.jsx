@@ -1,11 +1,10 @@
 import { Outlet, useNavigate, useLocation } from "react-router-dom";
 import NavBar from "./NavBar";
 import Footer from "./Footer";
-import axios from "axios";
+import apiClient from "../api/apiClient";
 import { addUser } from "../utils/userSlice";
 import { addRequests } from "../utils/requestSlice";
 import { useEffect, useCallback } from "react";
-import { BASE_URL } from "../utils/constants";
 import { useDispatch, useSelector } from "react-redux";
 
 import MessageNotification from "./MessageNotification";
@@ -19,9 +18,7 @@ const Body = () => {
     const fetchUser = async () => {
         try {
             if (user) return;
-            const res = await axios.get(BASE_URL + "/profile/view", {
-                withCredentials: true,
-            });
+            const res = await apiClient.get("/profile/view");
             dispatch(addUser(res.data));
 
         }
@@ -37,9 +34,7 @@ const Body = () => {
 
     const fetchRequests = useCallback(async () => {
         try {
-            const res = await axios.get(BASE_URL + "/user/requests/received", {
-                withCredentials: true,
-            });
+            const res = await apiClient.get("/users/requests/received");
             if (res.data && res.data.data) {
                 dispatch(addRequests(res.data.data));
             }

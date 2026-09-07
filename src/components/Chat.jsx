@@ -1,9 +1,9 @@
 import { useState, useEffect, useRef } from "react";
 import { useParams, Link } from "react-router-dom";
 import { useSelector } from "react-redux";
-import axios from "axios";
-import { BASE_URL } from "../utils/constants";
+import apiClient from "../api/apiClient";
 import { createSocketConnection } from "../utils/socket";
+import { toast } from "react-toastify";
 import { 
   LuArrowLeft, 
   LuSend, 
@@ -53,9 +53,7 @@ const Chat = () => {
       setLoading(true);
       setError("");
       try {
-        const res = await axios.get(`${BASE_URL}/chat/${targetUserId}`, {
-          withCredentials: true,
-        });
+        const res = await apiClient.get(`/chat/${targetUserId}`);
         setTargetUser(res.data.targetUser);
         setMessages(res.data.messages || []);
       } catch (err) {
@@ -103,6 +101,7 @@ const Chat = () => {
     // Listen for socket errors (e.g. not connected)
     const handleChatError = ({ message }) => {
       setError(message);
+      toast.error(message);
     };
 
     socket.on("receiveMessage", handleReceive);

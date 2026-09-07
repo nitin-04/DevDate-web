@@ -1,9 +1,9 @@
 import { useState, useEffect } from 'react';
-import axios from 'axios';
-import { BASE_URL } from '../utils/constants';
+import apiClient from '../api/apiClient';
 import { useDispatch, useSelector } from 'react-redux';
 import { addConnections } from '../utils/connectionSlice';
 import { Link } from 'react-router-dom';
+import { toast } from 'react-toastify';
 import {
   LuUsers,
   LuSearch,
@@ -36,11 +36,10 @@ const Connections = () => {
     const fetchConnections = async () => {
       setLoading(true);
       try {
-        const res = await axios.get(BASE_URL + '/user/connections', {
-          withCredentials: true,
-        });
+        const res = await apiClient.get('/users/connections');
         dispatch(addConnections(res?.data?.data || []));
       } catch (err) {
+        toast.error('Failed to load connections.');
         console.error('Error fetching connections:', err);
       } finally {
         setLoading(false);
@@ -53,6 +52,7 @@ const Connections = () => {
   const handleCopy = (emailId, id) => {
     if (emailId) {
       navigator.clipboard.writeText(emailId);
+      toast.success('Email copied to clipboard!');
     }
     setCopiedId(id);
     setTimeout(() => setCopiedId(null), 2000);

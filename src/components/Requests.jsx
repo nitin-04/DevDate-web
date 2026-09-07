@@ -1,11 +1,11 @@
 import { useState, useEffect } from "react";
-import axios from "axios";
+import apiClient from "../api/apiClient";
 import { useDispatch, useSelector } from "react-redux";
-import { BASE_URL } from "../utils/constants";
 import { addRequests, removeRequest } from "../utils/requestSlice";
 import { Link } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import confetti from "canvas-confetti";
+import { toast } from "react-toastify";
 import { 
   LuUserCheck, 
   LuCheck, 
@@ -31,9 +31,7 @@ const Requests = () => {
   const fetchRequests = async () => {
     setLoading(true);
     try {
-      const res = await axios.get(`${BASE_URL}/user/requests/received`, {
-        withCredentials: true,
-      });
+      const res = await apiClient.get("/users/requests/received");
 
       if (res.data && res.data.data) {
         dispatch(addRequests(res.data.data));
@@ -62,13 +60,16 @@ const Requests = () => {
     }
 
     try {
-      await axios.post(
-        `${BASE_URL}/request/review/${status}/${_id}`,
-        {},
-        { withCredentials: true }
-      );
+      await apiClient.post(`/requests/review/${status}/${_id}`);
       dispatch(removeRequest(_id));
+      if (status === "accepted") {
+        toast.success("Request accepted! Connected successfully.");
+      } else {
+        toast.info("Request declined.");
+      }
     } catch (err) {
+      const msg = err?.response?.data?.message || "Failed to update request";
+      toast.error(msg);
       console.error("Error reviewing request:", err);
     }
   };
