@@ -7,15 +7,15 @@ import { clearFeed } from "../utils/feedSlice";
 import { removeConnections } from "../utils/connectionSlice";
 import { clearRequests } from "../utils/requestSlice";
 import { 
-  Code2, 
-  Flame, 
-  Users, 
-  UserCheck, 
-  User as UserIcon, 
-  LogOut, 
-  Sparkles,
-  ChevronDown
-} from "lucide-react";
+  LuCodeXml, 
+  LuFlame, 
+  LuUsers, 
+  LuUserCheck, 
+  LuUser as UserIcon, 
+  LuLogOut, 
+  LuSparkles, 
+  LuChevronDown 
+} from "react-icons/lu";
 
 const NavBar = () => {
   const user = useSelector((store) => store.user);
@@ -38,12 +38,12 @@ const NavBar = () => {
   };
 
   const navLinks = [
-    { to: "/", label: "Feed", icon: Flame },
-    { to: "/connections", label: "Connections", icon: Users },
+    { to: "/", label: "Feed", icon: LuFlame },
+    { to: "/connections", label: "Connections", icon: LuUsers },
     { 
       to: "/requests", 
       label: "Requests", 
-      icon: UserCheck, 
+      icon: LuUserCheck, 
       badge: requests && requests.length > 0 ? requests.length : null 
     },
   ];
@@ -59,7 +59,7 @@ const NavBar = () => {
         >
           <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-indigo-600 via-indigo-500 to-purple-500 p-0.5 shadow-lg shadow-indigo-500/25 group-hover:shadow-indigo-500/40 transition-all duration-300">
             <div className="w-full h-full bg-slate-950 rounded-[10px] flex items-center justify-center">
-              <Code2 className="w-5 h-5 text-indigo-400 group-hover:scale-110 transition-transform duration-300" />
+              <LuCodeXml className="w-5 h-5 text-indigo-400 group-hover:scale-110 transition-transform duration-300" />
             </div>
           </div>
           <div className="flex items-baseline gap-1.5">
@@ -67,7 +67,7 @@ const NavBar = () => {
               Dev<span className="bg-gradient-to-r from-indigo-400 to-pink-400 bg-clip-text text-transparent">Date</span>
             </span>
             <span className="hidden sm:inline-flex items-center gap-1 text-[10px] font-mono px-2 py-0.5 rounded-full bg-indigo-500/10 text-indigo-400 border border-indigo-500/20">
-              <Sparkles className="w-2.5 h-2.5" /> v1.0
+              <LuSparkles className="w-2.5 h-2.5" /> v1.0
             </span>
           </div>
         </Link>
@@ -117,7 +117,7 @@ const NavBar = () => {
                 <span className="text-sm font-semibold text-slate-200 max-w-[100px] truncate">
                   {user.firstName}
                 </span>
-                <ChevronDown className="w-3.5 h-3.5 text-slate-400 group-hover:rotate-180 transition-transform duration-200" />
+                <LuChevronDown className="w-3.5 h-3.5 text-slate-400 group-hover:rotate-180 transition-transform duration-200" />
               </button>
 
               {/* Dropdown Menu */}
@@ -141,7 +141,7 @@ const NavBar = () => {
                       to="/"
                       className="flex items-center gap-2.5 px-3 py-2 rounded-xl text-sm text-slate-300 hover:text-white hover:bg-slate-800 transition-colors"
                     >
-                      <Flame className="w-4 h-4 text-orange-400" />
+                      <LuFlame className="w-4 h-4 text-orange-400" />
                       <span>Feed</span>
                     </Link>
                   </li>
@@ -150,7 +150,7 @@ const NavBar = () => {
                       to="/connections"
                       className="flex items-center gap-2.5 px-3 py-2 rounded-xl text-sm text-slate-300 hover:text-white hover:bg-slate-800 transition-colors"
                     >
-                      <Users className="w-4 h-4 text-blue-400" />
+                      <LuUsers className="w-4 h-4 text-blue-400" />
                       <span>Connections</span>
                     </Link>
                   </li>
@@ -160,7 +160,7 @@ const NavBar = () => {
                       className="flex items-center justify-between px-3 py-2 rounded-xl text-sm text-slate-300 hover:text-white hover:bg-slate-800 transition-colors"
                     >
                       <div className="flex items-center gap-2.5">
-                        <UserCheck className="w-4 h-4 text-emerald-400" />
+                        <LuUserCheck className="w-4 h-4 text-emerald-400" />
                         <span>Requests</span>
                       </div>
                       {requests && requests.length > 0 && (
@@ -175,7 +175,7 @@ const NavBar = () => {
                       onClick={handleLogout}
                       className="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-sm text-rose-400 hover:text-rose-300 hover:bg-rose-500/10 transition-colors cursor-pointer"
                     >
-                      <LogOut className="w-4 h-4 text-rose-400" />
+                      <LuLogOut className="w-4 h-4 text-rose-400" />
                       <span>Log Out</span>
                     </button>
                   </li>

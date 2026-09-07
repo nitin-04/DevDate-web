@@ -8,6 +8,8 @@ import { useEffect, useCallback } from "react";
 import { BASE_URL } from "../utils/constants";
 import { useDispatch, useSelector } from "react-redux";
 
+import MessageNotification from "./MessageNotification";
+
 const Body = () => {
     const dispatch = useDispatch();
     const navigate = useNavigate();
@@ -60,11 +62,12 @@ const Body = () => {
     }, [user, fetchRequests]);
 
     return (
-        <div className="app flex flex-col min-h-screen">
+        <div className="app flex flex-col min-h-screen relative">
             <NavBar />
             <main className="flex-grow">
                 <Outlet />
             </main>
+            <MessageNotification />
             <Footer />
         </div>
     )

@@ -8,18 +8,18 @@ import { clearRequests } from "../utils/requestSlice";
 import { useNavigate, useLocation } from "react-router-dom";
 import { BASE_URL } from "../utils/constants";
 import { 
-  Code2, 
-  Mail, 
-  Lock, 
-  User, 
-  Eye, 
-  EyeOff, 
-  ArrowRight, 
-  Sparkles,
-  Check,
-  ShieldCheck,
-  AlertCircle
-} from "lucide-react";
+  LuCodeXml, 
+  LuMail, 
+  LuLock, 
+  LuUser, 
+  LuEye, 
+  LuEyeOff, 
+  LuArrowRight, 
+  LuSparkles,
+  LuCheck,
+  LuShieldCheck,
+  LuCircleAlert
+} from "react-icons/lu";
 
 // Password strength evaluator based on OWASP & NIST standard
 const evaluatePasswordStrength = (pwd) => {
@@ -155,7 +155,7 @@ const Login = () => {
           {/* Header */}
           <div className="text-center mb-8">
             <div className="inline-flex items-center justify-center w-14 h-14 rounded-2xl bg-gradient-to-tr from-indigo-600 to-purple-600 shadow-xl shadow-indigo-500/25 mb-4">
-              <Code2 className="w-7 h-7 text-white" />
+              <LuCodeXml className="w-7 h-7 text-white" />
             </div>
             <h2 className="text-2xl sm:text-3xl font-black tracking-tight text-white">
               {isLoginForm ? "Welcome Back" : "Join the Dev Community"}
@@ -172,7 +172,7 @@ const Login = () => {
             {!isLoginForm && (
               <div className="grid grid-cols-2 gap-3">
                 <div className="relative">
-                  <User className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
+                  <LuUser className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
                   <input
                     type="text"
                     placeholder="First Name"
@@ -184,7 +184,7 @@ const Login = () => {
                   />
                 </div>
                 <div className="relative">
-                  <User className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
+                  <LuUser className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
                   <input
                     type="text"
                     placeholder="Last Name"
@@ -199,7 +199,7 @@ const Login = () => {
 
             {/* Email */}
             <div className="relative">
-              <Mail className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
+              <LuMail className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
               <input
                 type="email"
                 placeholder="developer@example.com"
@@ -212,7 +212,7 @@ const Login = () => {
 
             {/* Password */}
             <div className="relative">
-              <Lock className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
+              <LuLock className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
               <input
                 type={showPassword ? "text" : "password"}
                 placeholder="Password"
@@ -226,7 +226,7 @@ const Login = () => {
                 onClick={() => setShowPassword(!showPassword)}
                 className="absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-200 cursor-pointer"
               >
-                {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                {showPassword ? <LuEyeOff className="w-4 h-4" /> : <LuEye className="w-4 h-4" />}
               </button>
             </div>
 
@@ -237,7 +237,7 @@ const Login = () => {
                 <div>
                   <div className="flex justify-between items-center text-xs mb-1.5 font-mono">
                     <span className="text-slate-400 flex items-center gap-1">
-                      <ShieldCheck className="w-3.5 h-3.5 text-indigo-400" />
+                      <LuShieldCheck className="w-3.5 h-3.5 text-indigo-400" />
                       <span>Security Strength</span>
                     </span>
                     <span className={`font-bold ${passwordStrength.textColor}`}>
@@ -278,7 +278,7 @@ const Login = () => {
                           }`}
                         >
                           {check.met ? (
-                            <Check className="w-2.5 h-2.5 stroke-[3]" />
+                            <LuCheck className="w-2.5 h-2.5 stroke-[3]" />
                           ) : (
                             <span className="w-1 h-1 rounded-full bg-slate-500" />
                           )}
@@ -300,7 +300,7 @@ const Login = () => {
             {/* Error Message */}
             {error && (
               <div className="p-3 rounded-xl bg-rose-500/10 border border-rose-500/30 text-rose-400 text-xs leading-relaxed flex items-start gap-2">
-                <AlertCircle className="w-4 h-4 flex-shrink-0 mt-0.5" />
+                <LuCircleAlert className="w-4 h-4 flex-shrink-0 mt-0.5" />
                 <span>{error}</span>
               </div>
             )}
@@ -312,7 +312,7 @@ const Login = () => {
               className="w-full mt-6 py-3 rounded-xl bg-gradient-to-r from-indigo-600 via-indigo-500 to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-white font-bold text-sm shadow-xl shadow-indigo-500/25 flex items-center justify-center gap-2 active:scale-[0.99] transition-all duration-200 cursor-pointer disabled:opacity-50"
             >
               <span>{loading ? "Processing..." : isLoginForm ? "Sign In" : "Create Account"}</span>
-              <ArrowRight className="w-4 h-4" />
+              <LuArrowRight className="w-4 h-4" />
             </button>
           </form>
 

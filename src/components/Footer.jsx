@@ -1,4 +1,4 @@
-import { Code2, Heart, Sparkles } from 'lucide-react';
+import { LuCodeXml, LuHeart, LuSparkles } from 'react-icons/lu';
 
 const Footer = () => {
   return (
@@ -6,7 +6,7 @@ const Footer = () => {
       <div className="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4 text-center sm:text-left">
         {/* Left */}
         <div className="flex items-center gap-2">
-          <Code2 className="w-4 h-4 text-indigo-400" />
+          <LuCodeXml className="w-4 h-4 text-indigo-400" />
           <p className="text-xs sm:text-sm">
             © {new Date().getFullYear()}{' '}
             <span className="font-bold text-slate-200">DevDate</span>. Built for

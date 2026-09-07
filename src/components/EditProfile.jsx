@@ -7,22 +7,22 @@ import { addUser } from '../utils/userSlice';
 import { useDispatch } from 'react-redux';
 import confetti from 'canvas-confetti';
 import {
-  User,
-  Sparkles,
-  Terminal,
-  Image,
-  FileText,
-  Save,
-  Check,
-  Plus,
-  X,
-  Eye,
-  UploadCloud,
-  Link2,
-  Trash2,
-  Camera,
-  Upload,
-} from 'lucide-react';
+  LuUser,
+  LuSparkles,
+  LuTerminal,
+  LuImage,
+  LuFileText,
+  LuSave,
+  LuCheck,
+  LuPlus,
+  LuX,
+  LuEye,
+  LuCloudUpload,
+  LuLink2,
+  LuTrash2,
+  LuCamera,
+  LuUpload,
+} from 'react-icons/lu';
 
 const POPULAR_SKILLS = [
   'React',
@@ -64,6 +64,7 @@ const EditProfile = ({ user }) => {
   const [about, setAbout] = useState(user.about || '');
   const [photoUrl, setPhotoUrl] = useState(user.photoUrl || '');
   const [photoMode, setPhotoMode] = useState('upload'); // 'upload' | 'url'
+  const [selectedFile, setSelectedFile] = useState(null);
   const [isDragging, setIsDragging] = useState(false);
   const [fileName, setFileName] = useState('');
   const [skills, setSkills] = useState(
@@ -82,17 +83,16 @@ const EditProfile = ({ user }) => {
       setError('Please drop a valid image file (PNG, JPG, WEBP, GIF, SVG).');
       return;
     }
-    if (file.size > 10 * 1024 * 1024) {
-      setError('Image file size should be less than 10MB.');
+    if (file.size > 5 * 1024 * 1024) {
+      setError('Image file size should be less than 5MB.');
       return;
     }
     setError('');
     setFileName(file.name);
-    const reader = new FileReader();
-    reader.onload = (e) => {
-      setPhotoUrl(e.target.result);
-    };
-    reader.readAsDataURL(file);
+    setSelectedFile(file);
+    // Instant browser preview via object URL (zero Base64 memory overhead)
+    const previewUrl = URL.createObjectURL(file);
+    setPhotoUrl(previewUrl);
   };
 
   const handleDragOver = (e) => {
@@ -116,6 +116,7 @@ const EditProfile = ({ user }) => {
   const clearPhoto = () => {
     setPhotoUrl('');
     setFileName('');
+    setSelectedFile(null);
     if (fileInputRef.current) {
       fileInputRef.current.value = '';
     }
@@ -149,6 +150,46 @@ const EditProfile = ({ user }) => {
     setSaving(true);
 
     try {
+      let finalPhotoUrl = photoUrl;
+
+      // If a new local image was selected, upload it to Cloudinary via backend multipart endpoint
+      if (selectedFile) {
+        const formData = new FormData();
+        formData.append('photo', selectedFile);
+
+        const uploadRes = await axios.post(
+          `${BASE_URL}/profile/upload-photo`,
+          formData,
+          {
+            withCredentials: true,
+            headers: {
+              'Content-Type': 'multipart/form-data',
+            },
+          }
+        );
+
+        if (uploadRes?.data?.photoUrl) {
+          finalPhotoUrl = uploadRes.data.photoUrl;
+          setPhotoUrl(finalPhotoUrl);
+          setSelectedFile(null);
+        }
+      }
+
+      const payload = {
+        firstName,
+        lastName,
+        age: age === '' ? undefined : Number(age),
+        gender,
+        photoUrl: finalPhotoUrl,
+        about,
+        skills,
+        role,
+        experienceYears:
+          experienceYears === '' ? undefined : Number(experienceYears),
+        githubUrl,
+        linkedInUrl,
+      };
+
       const res = await axios.patch(`${BASE_URL}/profile/edit`, payload, {
         withCredentials: true,
       });
@@ -184,7 +225,7 @@ const EditProfile = ({ user }) => {
       <div className="mb-8 pb-6 border-b border-slate-800/80 flex items-center justify-between">
         <div>
           <div className="flex items-center gap-2 text-indigo-400 text-xs font-mono uppercase tracking-wider mb-1">
-            <Sparkles className="w-3.5 h-3.5" />
+            <LuSparkles className="w-3.5 h-3.5" />
             <span>Developer Profile</span>
           </div>
           <h1 className="text-3xl sm:text-4xl font-black text-white tracking-tight">
@@ -200,7 +241,7 @@ const EditProfile = ({ user }) => {
         {/* Left Column: Form Controls */}
         <div className="lg:col-span-7 bg-slate-900/80 border border-slate-800/90 rounded-3xl p-6 sm:p-8 shadow-2xl backdrop-blur-xl space-y-6">
           <div className="flex items-center gap-2 pb-4 border-b border-slate-800/80">
-            <User className="w-5 h-5 text-indigo-400" />
+            <LuUser className="w-5 h-5 text-indigo-400" />
             <h2 className="text-xl font-bold text-white">
               General Information
             </h2>
@@ -351,7 +392,7 @@ const EditProfile = ({ user }) => {
           <div className="space-y-2.5 pt-2 border-t border-slate-800/80">
             <div className="flex items-center justify-between">
               <label className="text-xs font-semibold text-slate-300 uppercase tracking-wider flex items-center gap-1.5">
-                <Camera className="w-3.5 h-3.5 text-indigo-400" />
+                <LuCamera className="w-3.5 h-3.5 text-indigo-400" />
                 <span>Avatar / Profile Photo</span>
               </label>
 
@@ -366,7 +407,7 @@ const EditProfile = ({ user }) => {
                       : 'text-slate-400 hover:text-slate-200'
                   }`}
                 >
-                  <UploadCloud className="w-3 h-3" />
+                  <LuCloudUpload className="w-3 h-3" />
                   <span>Drag & Drop</span>
                 </button>
                 <button
@@ -378,7 +419,7 @@ const EditProfile = ({ user }) => {
                       : 'text-slate-400 hover:text-slate-200'
                   }`}
                 >
-                  <Link2 className="w-3 h-3" />
+                  <LuLink2 className="w-3 h-3" />
                   <span>Image URL</span>
                 </button>
               </div>
@@ -434,14 +475,14 @@ const EditProfile = ({ user }) => {
                       }}
                       className="inline-flex items-center gap-1 text-xs text-rose-400 hover:text-rose-300 font-medium px-2.5 py-1 rounded-lg bg-rose-500/10 hover:bg-rose-500/20 border border-rose-500/20 transition-all cursor-pointer"
                     >
-                      <Trash2 className="w-3 h-3" />
+                      <LuTrash2 className="w-3 h-3" />
                       <span>Remove Photo</span>
                     </button>
                   </div>
                 ) : (
                   <div className="flex flex-col items-center space-y-2">
                     <div className="w-12 h-12 rounded-2xl bg-indigo-600/15 border border-indigo-500/30 flex items-center justify-center text-indigo-400 mb-1">
-                      <UploadCloud className="w-6 h-6" />
+                      <LuCloudUpload className="w-6 h-6" />
                     </div>
                     <p className="text-xs sm:text-sm font-semibold text-slate-200">
                       Drag & Drop your photo here, or{' '}
@@ -459,7 +500,7 @@ const EditProfile = ({ user }) => {
               /* Image URL Input */
               <div className="space-y-1.5">
                 <div className="relative">
-                  <Link2 className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
+                  <LuLink2 className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
                   <input
                     type="url"
                     value={photoUrl}
@@ -479,7 +520,7 @@ const EditProfile = ({ user }) => {
           <div className="space-y-1.5">
             <div className="flex items-center justify-between">
               <label className="text-xs font-semibold text-slate-300 uppercase tracking-wider flex items-center gap-1.5">
-                <FileText className="w-3.5 h-3.5 text-indigo-400" />
+                <LuFileText className="w-3.5 h-3.5 text-indigo-400" />
                 <span>About Bio</span>
               </label>
               <span className="text-[10px] text-slate-400 font-mono">
@@ -500,7 +541,7 @@ const EditProfile = ({ user }) => {
           <div className="space-y-3 pt-2 border-t border-slate-800/80">
             <div className="flex items-center justify-between">
               <label className="text-xs font-semibold text-slate-300 uppercase tracking-wider flex items-center gap-1.5">
-                <Terminal className="w-3.5 h-3.5 text-indigo-400" />
+                <LuTerminal className="w-3.5 h-3.5 text-indigo-400" />
                 <span>Tech Stack (Select up to 10)</span>
               </label>
               <span className="text-xs text-slate-400 font-mono">
@@ -547,7 +588,7 @@ const EditProfile = ({ user }) => {
                         onClick={() => removeSkill(s)}
                         className="hover:text-rose-400 cursor-pointer"
                       >
-                        <X className="w-3 h-3" />
+                        <LuX className="w-3 h-3" />
                       </button>
                     </span>
                   ))}
@@ -570,7 +611,7 @@ const EditProfile = ({ user }) => {
                 onClick={handleAddCustomSkill}
                 className="px-4 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-semibold flex items-center gap-1 cursor-pointer transition-colors"
               >
-                <Plus className="w-3.5 h-3.5" />
+                <LuPlus className="w-3.5 h-3.5" />
                 <span>Add</span>
               </button>
             </div>
@@ -594,7 +635,7 @@ const EditProfile = ({ user }) => {
                 <span>Saving Changes...</span>
               ) : (
                 <>
-                  <Save className="w-4 h-4" />
+                  <LuSave className="w-4 h-4" />
                   <span>Save Profile</span>
                 </>
               )}
@@ -605,7 +646,7 @@ const EditProfile = ({ user }) => {
         {/* Right Column: Live Card Preview */}
         <div className="lg:col-span-5 flex flex-col items-center sticky top-24">
           <div className="mb-3 flex items-center gap-2 text-xs font-mono text-slate-400 uppercase tracking-wider">
-            <Eye className="w-3.5 h-3.5 text-indigo-400" />
+            <LuEye className="w-3.5 h-3.5 text-indigo-400" />
             <span>Live Feed Preview</span>
           </div>
 
@@ -636,7 +677,7 @@ const EditProfile = ({ user }) => {
       {showToast && (
         <div className="fixed bottom-6 right-6 z-50 animate-bounce">
           <div className="flex items-center gap-2.5 px-5 py-3 rounded-2xl bg-emerald-600 text-white font-bold text-sm shadow-2xl shadow-emerald-500/40 border border-emerald-400/30">
-            <Check className="w-4 h-4" />
+            <LuCheck className="w-4 h-4" />
             <span>Profile successfully updated!</span>
           </div>
         </div>

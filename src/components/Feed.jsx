@@ -12,15 +12,15 @@ import {
 } from 'framer-motion';
 import confetti from 'canvas-confetti';
 import {
-  Radar,
-  RotateCcw,
-  Sparkles,
-  Flame,
-  Check,
-  X,
-  Keyboard,
-  Heart,
-} from 'lucide-react';
+  LuRadar,
+  LuRotateCcw,
+  LuSparkles,
+  LuFlame,
+  LuCheck,
+  LuX,
+  LuKeyboard,
+  LuHeart,
+} from 'react-icons/lu';
 
 // Card animation variants with explicit direction support
 const cardVariants = {
@@ -76,7 +76,7 @@ const SwipeableCard = ({ user, onSwipe, direction }) => {
           style={{ opacity: likeOpacity }}
           className="absolute top-6 left-6 z-30 pointer-events-none border-4 border-emerald-400 text-emerald-400 font-black text-2xl px-4 py-1 rounded-xl rotate-[-15deg] shadow-2xl bg-slate-950/90 tracking-wider flex items-center gap-1.5"
         >
-          <Heart className="w-6 h-6 fill-emerald-400" />
+          <LuHeart className="w-6 h-6 fill-emerald-400" />
           CONNECT
         </motion.div>
 
@@ -85,7 +85,7 @@ const SwipeableCard = ({ user, onSwipe, direction }) => {
           style={{ opacity: nopeOpacity }}
           className="absolute top-6 right-6 z-30 pointer-events-none border-4 border-rose-500 text-rose-500 font-black text-2xl px-4 py-1 rounded-xl rotate-[15deg] shadow-2xl bg-slate-950/90 tracking-wider flex items-center gap-1.5"
         >
-          <X className="w-6 h-6" />
+          <LuX className="w-6 h-6" />
           PASS
         </motion.div>
 
@@ -203,7 +203,7 @@ const Feed = () => {
           <div className="absolute inset-10 rounded-full border border-indigo-500/40" />
           <div className="absolute inset-16 rounded-full border border-indigo-500/50 bg-indigo-500/5" />
           <div className="w-16 h-16 rounded-full bg-gradient-to-tr from-indigo-600 to-purple-600 flex items-center justify-center shadow-xl shadow-indigo-500/30 z-10">
-            <Radar
+            <LuRadar
               className="w-8 h-8 text-white animate-spin"
               style={{ animationDuration: '4s' }}
             />
@@ -222,7 +222,7 @@ const Feed = () => {
           onClick={getFeed}
           className="flex items-center gap-2 px-6 py-3 rounded-full bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-white font-semibold shadow-lg shadow-indigo-500/25 active:scale-95 transition-all duration-200 cursor-pointer"
         >
-          <RotateCcw className="w-4 h-4" />
+          <LuRotateCcw className="w-4 h-4" />
           <span>Refresh Network Feed</span>
         </button>
       </div>
