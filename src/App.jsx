@@ -1,4 +1,4 @@
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import Login from "./components/Login";
 import Profile from "./components/Profile";
 import Body from "./components/Body";
@@ -8,6 +8,7 @@ import Feed from "./components/Feed";
 import Connections from "./components/Connections";
 import Requests from "./components/Requests";
 import Chat from "./components/Chat";
+import Inbox from "./components/Inbox";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
@@ -24,6 +25,9 @@ function App() {
               <Route path="/profile" element={<Profile />} />
               <Route path="/connections" element={<Connections />} />
               <Route path="/requests" element={<Requests />} />
+              <Route path="/messages" element={<Inbox />} />
+              <Route path="/inbox" element={<Navigate to="/messages" replace />} />
+              <Route path="/chat" element={<Navigate to="/messages" replace />} />
               <Route path="/chat/:targetUserId" element={<Chat />} />
             </Route>
           </Routes>

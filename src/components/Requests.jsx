@@ -1,20 +1,20 @@
-import { useState, useEffect } from "react";
-import apiClient from "../api/apiClient";
-import { useDispatch, useSelector } from "react-redux";
-import { addRequests, removeRequest } from "../utils/requestSlice";
-import { Link } from "react-router-dom";
-import { motion, AnimatePresence } from "framer-motion";
-import confetti from "canvas-confetti";
-import { toast } from "react-toastify";
-import { 
-  LuUserCheck, 
-  LuCheck, 
-  LuX, 
-  LuSparkles, 
-  LuFlame, 
-  LuClock, 
-  LuTerminal 
-} from "react-icons/lu";
+import { useState, useEffect } from 'react';
+import apiClient from '../api/apiClient';
+import { useDispatch, useSelector } from 'react-redux';
+import { addRequests, removeRequest } from '../utils/requestSlice';
+import { Link } from 'react-router-dom';
+import { motion, AnimatePresence } from 'framer-motion';
+import confetti from 'canvas-confetti';
+import { toast } from 'react-toastify';
+import {
+  LuUserCheck,
+  LuCheck,
+  LuX,
+  LuSparkles,
+  LuFlame,
+  LuClock,
+  LuTerminal,
+} from 'react-icons/lu';
 
 const SKILL_COLORS = [
   'bg-blue-500/15 text-blue-400 border-blue-500/30',
@@ -31,13 +31,13 @@ const Requests = () => {
   const fetchRequests = async () => {
     setLoading(true);
     try {
-      const res = await apiClient.get("/users/requests/received");
+      const res = await apiClient.get('/users/requests/received');
 
       if (res.data && res.data.data) {
         dispatch(addRequests(res.data.data));
       }
     } catch (err) {
-      console.error("Error fetching requests:", err);
+      console.error('Error fetching requests:', err);
     } finally {
       setLoading(false);
     }
@@ -50,27 +50,27 @@ const Requests = () => {
   const reviewRequest = async (status, _id) => {
     if (!_id) return;
 
-    if (status === "accepted") {
+    if (status === 'accepted') {
       confetti({
         particleCount: 100,
         spread: 80,
         origin: { y: 0.6 },
-        colors: ['#10b981', '#6366f1', '#ec4899']
+        colors: ['#10b981', '#6366f1', '#ec4899'],
       });
     }
 
     try {
       await apiClient.post(`/requests/review/${status}/${_id}`);
       dispatch(removeRequest(_id));
-      if (status === "accepted") {
-        toast.success("Request accepted! Connected successfully.");
+      if (status === 'accepted') {
+        toast.success('Request accepted! Connected successfully.');
       } else {
-        toast.info("Request declined.");
+        toast.info('Request declined.');
       }
     } catch (err) {
-      const msg = err?.response?.data?.message || "Failed to update request";
+      const msg = err?.response?.data?.message || 'Failed to update request';
       toast.error(msg);
-      console.error("Error reviewing request:", err);
+      console.error('Error reviewing request:', err);
     }
   };
 
@@ -103,7 +103,10 @@ const Requests = () => {
       {loading && (!requests || requests.length === 0) && (
         <div className="space-y-4">
           {[1, 2, 3].map((n) => (
-            <div key={n} className="rounded-3xl bg-slate-900/60 border border-slate-800 p-5 animate-pulse flex gap-5">
+            <div
+              key={n}
+              className="rounded-3xl bg-slate-900/60 border border-slate-800 p-5 animate-pulse flex gap-5"
+            >
               <div className="w-28 h-28 bg-slate-800 rounded-2xl shrink-0" />
               <div className="flex-1 space-y-3">
                 <div className="h-6 bg-slate-800 rounded w-1/3" />
@@ -123,7 +126,8 @@ const Requests = () => {
           </div>
           <h2 className="text-2xl font-bold text-white mb-2">All Caught Up!</h2>
           <p className="text-slate-400 text-sm max-w-sm mb-6 leading-relaxed">
-            You have no pending requests right now. Keep your profile updated and discover other developers in your feed!
+            You have no pending requests right now. Keep your profile updated
+            and discover other developers in your feed!
           </p>
           <Link
             to="/"
@@ -142,7 +146,16 @@ const Requests = () => {
             requests
               .filter((req) => req.fromUserId)
               .map((request) => {
-                const { _id, firstName, lastName, age, gender, photoUrl, about, skills } = request.fromUserId;
+                const {
+                  _id,
+                  firstName,
+                  lastName,
+                  age,
+                  gender,
+                  photoUrl,
+                  about,
+                  skills,
+                } = request.fromUserId;
 
                 return (
                   <motion.div
@@ -150,37 +163,47 @@ const Requests = () => {
                     layout
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, scale: 0.95, transition: { duration: 0.2 } }}
+                    exit={{
+                      opacity: 0,
+                      scale: 0.95,
+                      transition: { duration: 0.2 },
+                    }}
                     className="rounded-3xl bg-slate-900/80 border border-slate-800/90 hover:border-slate-700 shadow-xl shadow-black/30 overflow-hidden backdrop-blur-xl p-5 flex flex-col sm:flex-row gap-5 items-start sm:items-center justify-between transition-all"
                   >
                     {/* User Info */}
                     <div className="flex gap-4 sm:gap-5 items-start sm:items-center w-full sm:w-auto">
                       <div className="relative shrink-0">
                         <img
-                          src={photoUrl || "https://thehotelexperience.com/wp-content/uploads/2019/08/default-avatar.png"}
+                          src={
+                            photoUrl ||
+                            'https://thehotelexperience.com/wp-content/uploads/2019/08/default-avatar.png'
+                          }
                           alt={firstName}
                           className="w-20 h-20 sm:w-24 sm:h-24 rounded-2xl object-cover border border-slate-700 shadow-md"
                           onError={(e) => {
-                            e.target.src = "https://thehotelexperience.com/wp-content/uploads/2019/08/default-avatar.png";
+                            e.target.src =
+                              'https://thehotelexperience.com/wp-content/uploads/2019/08/default-avatar.png';
                           }}
                         />
-                        <span className="absolute -bottom-1 -right-1 w-3.5 h-3.5 rounded-full bg-indigo-500 border-2 border-slate-900" />
+                        <span className="absolute -bottom-1 -right-1 w-3.5 h-3.5 rounded-full border-2 border-slate-900" />
                       </div>
 
                       <div className="space-y-1.5 flex-1 min-w-0">
                         <div className="flex items-baseline gap-2">
                           <h3 className="text-lg sm:text-xl font-bold text-white truncate">
-                            {firstName} {lastName || ""}
+                            {firstName} {lastName || ''}
                           </h3>
                           {age && (
                             <span className="text-xs text-slate-400 font-mono">
-                              {age}{gender ? `, ${gender}` : ''}
+                              {age}
+                              {gender ? `, ${gender}` : ''}
                             </span>
                           )}
                         </div>
 
                         <p className="text-xs sm:text-sm text-slate-300 line-clamp-2 leading-relaxed">
-                          {about || "Developer seeking connection and project collaboration."}
+                          {about ||
+                            'Developer seeking connection and project collaboration.'}
                         </p>
 
                         {/* Skills */}
@@ -204,7 +227,7 @@ const Requests = () => {
                     {/* Action Buttons */}
                     <div className="flex items-center gap-3 w-full sm:w-auto justify-end pt-3 sm:pt-0 border-t sm:border-t-0 border-slate-800/80">
                       <button
-                        onClick={() => reviewRequest("rejected", request._id)}
+                        onClick={() => reviewRequest('rejected', request._id)}
                         className="flex-1 sm:flex-initial flex items-center justify-center gap-2 px-4 py-2.5 rounded-2xl bg-slate-800/80 hover:bg-rose-500/20 text-slate-300 hover:text-rose-400 border border-slate-700 hover:border-rose-500/40 text-xs font-semibold transition-all duration-200 cursor-pointer"
                         title="Decline request"
                       >
@@ -213,7 +236,7 @@ const Requests = () => {
                       </button>
 
                       <button
-                        onClick={() => reviewRequest("accepted", request._id)}
+                        onClick={() => reviewRequest('accepted', request._id)}
                         className="flex-1 sm:flex-initial flex items-center justify-center gap-2 px-5 py-2.5 rounded-2xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white shadow-lg shadow-emerald-500/20 text-xs font-semibold transition-all duration-200 cursor-pointer"
                         title="Accept request"
                       >

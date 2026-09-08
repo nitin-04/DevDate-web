@@ -14,12 +14,14 @@ import {
   LuUser as UserIcon, 
   LuLogOut, 
   LuSparkles, 
-  LuChevronDown 
+  LuChevronDown,
+  LuMessageSquare
 } from "react-icons/lu";
 
 const NavBar = () => {
   const user = useSelector((store) => store.user);
   const requests = useSelector((store) => store.requests);
+  const unreadCount = useSelector((store) => store.unread || 0);
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const location = useLocation();
@@ -47,6 +49,12 @@ const NavBar = () => {
       label: "Requests", 
       icon: LuUserCheck, 
       badge: requests && requests.length > 0 ? requests.length : null 
+    },
+    { 
+      to: "/messages", 
+      label: "Messages", 
+      icon: LuMessageSquare, 
+      badge: unreadCount > 0 ? (unreadCount > 9 ? "9+" : unreadCount) : null 
     },
   ];
 
@@ -168,6 +176,22 @@ const NavBar = () => {
                       {requests && requests.length > 0 && (
                         <span className="text-xs px-2 py-0.5 rounded-full bg-pink-500 text-white font-bold">
                           {requests.length}
+                        </span>
+                      )}
+                    </Link>
+                  </li>
+                  <li className="md:hidden">
+                    <Link
+                      to="/messages"
+                      className="flex items-center justify-between px-3 py-2 rounded-xl text-sm text-slate-300 hover:text-white hover:bg-slate-800 transition-colors"
+                    >
+                      <div className="flex items-center gap-2.5">
+                        <LuMessageSquare className="w-4 h-4 text-purple-400" />
+                        <span>Messages</span>
+                      </div>
+                      {unreadCount > 0 && (
+                        <span className="text-xs px-2 py-0.5 rounded-full bg-pink-500 text-white font-bold">
+                          {unreadCount > 9 ? "9+" : unreadCount}
                         </span>
                       )}
                     </Link>

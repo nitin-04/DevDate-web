@@ -1,25 +1,67 @@
-import { useState, useEffect, useRef } from "react";
-import { useParams, Link } from "react-router-dom";
-import { useSelector } from "react-redux";
-import apiClient from "../api/apiClient";
-import { createSocketConnection } from "../utils/socket";
-import { toast } from "react-toastify";
-import { 
-  LuArrowLeft, 
-  LuSend, 
-  LuShieldAlert, 
-  LuBriefcase, 
-  LuSparkles, 
-  LuUsers, 
-  LuCheckCheck, 
-  LuGithub, 
-  LuLinkedin 
-} from "react-icons/lu";
+import { useState, useEffect, useRef } from 'react';
+import { useParams, Link } from 'react-router-dom';
+import { useSelector } from 'react-redux';
+import apiClient from '../api/apiClient';
+import { createSocketConnection } from '../utils/socket';
+import { toast } from 'react-toastify';
+import {
+  LuArrowLeft,
+  LuSend,
+  LuShieldAlert,
+  LuBriefcase,
+  LuSparkles,
+  LuUsers,
+  LuCheckCheck,
+  LuGithub,
+  LuLinkedin,
+} from 'react-icons/lu';
 
 const formatTime = (dateString) => {
-  if (!dateString) return "";
+  if (!dateString) return '';
   const d = new Date(dateString);
-  return d.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
+  return d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+};
+
+// WhatsApp-style date divider formatter
+const formatDateDivider = (dateString) => {
+  if (!dateString) return '';
+  const msgDate = new Date(dateString);
+  const now = new Date();
+
+  // Compare calendar days ignoring time
+  const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+  const messageDay = new Date(
+    msgDate.getFullYear(),
+    msgDate.getMonth(),
+    msgDate.getDate(),
+  );
+
+  const oneDayMs = 24 * 60 * 60 * 1000;
+  const diffDays = Math.round((today - messageDay) / oneDayMs);
+
+  if (diffDays === 0) return 'Today';
+  if (diffDays === 1) return 'Yesterday';
+  if (diffDays > 1 && diffDays < 7) {
+    return msgDate.toLocaleDateString(undefined, { weekday: 'long' });
+  }
+
+  return msgDate.toLocaleDateString(undefined, {
+    month: 'long',
+    day: 'numeric',
+    year: msgDate.getFullYear() !== now.getFullYear() ? 'numeric' : undefined,
+  });
+};
+
+const isDifferentDay = (currentDateStr, prevDateStr) => {
+  if (!currentDateStr) return false;
+  if (!prevDateStr) return true;
+  const current = new Date(currentDateStr);
+  const prev = new Date(prevDateStr);
+  return (
+    current.getFullYear() !== prev.getFullYear() ||
+    current.getMonth() !== prev.getMonth() ||
+    current.getDate() !== prev.getDate()
+  );
 };
 
 const Chat = () => {
@@ -27,10 +69,10 @@ const Chat = () => {
   const user = useSelector((store) => store.user);
 
   const [messages, setMessages] = useState([]);
-  const [newMessage, setNewMessage] = useState("");
+  const [newMessage, setNewMessage] = useState('');
   const [targetUser, setTargetUser] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState("");
+  const [error, setError] = useState('');
   const [isTyping, setIsTyping] = useState(false);
 
   const socketRef = useRef(null);
@@ -39,7 +81,9 @@ const Chat = () => {
 
   // Auto-scroll to latest message
   const scrollToBottom = (smooth = true) => {
-    messagesEndRef.current?.scrollIntoView({ behavior: smooth ? "smooth" : "auto" });
+    messagesEndRef.current?.scrollIntoView({
+      behavior: smooth ? 'smooth' : 'auto',
+    });
   };
 
   useEffect(() => {
@@ -51,7 +95,7 @@ const Chat = () => {
     const fetchChatHistory = async () => {
       if (!targetUserId) return;
       setLoading(true);
-      setError("");
+      setError('');
       try {
         const res = await apiClient.get(`/chat/${targetUserId}`);
         setTargetUser(res.data.targetUser);
@@ -59,7 +103,7 @@ const Chat = () => {
       } catch (err) {
         const msg =
           err?.response?.data?.message ||
-          "Failed to load chat. You may only chat with accepted connections.";
+          'Failed to load chat. You may only chat with accepted connections.';
         setError(msg);
       } finally {
         setLoading(false);
@@ -77,13 +121,13 @@ const Chat = () => {
     socketRef.current = socket;
 
     const joinRoom = () => {
-      socket.emit("joinChat", {
+      socket.emit('joinChat', {
         userId: user._id,
         targetUserId,
       });
     };
 
-    socket.on("connect", joinRoom);
+    socket.on('connect', joinRoom);
     if (socket.connected) {
       joinRoom();
     }
@@ -104,15 +148,15 @@ const Chat = () => {
       toast.error(message);
     };
 
-    socket.on("receiveMessage", handleReceive);
-    socket.on("userTyping", handleTyping);
-    socket.on("chatError", handleChatError);
+    socket.on('receiveMessage', handleReceive);
+    socket.on('userTyping', handleTyping);
+    socket.on('chatError', handleChatError);
 
     return () => {
-      socket.off("connect", joinRoom);
-      socket.off("receiveMessage", handleReceive);
-      socket.off("userTyping", handleTyping);
-      socket.off("chatError", handleChatError);
+      socket.off('connect', joinRoom);
+      socket.off('receiveMessage', handleReceive);
+      socket.off('userTyping', handleTyping);
+      socket.off('chatError', handleChatError);
     };
   }, [user?._id, targetUserId]);
 
@@ -121,7 +165,7 @@ const Chat = () => {
     setNewMessage(e.target.value);
     if (!socketRef.current || !user?._id) return;
 
-    socketRef.current.emit("typing", {
+    socketRef.current.emit('typing', {
       senderId: user._id,
       targetUserId,
       isTyping: true,
@@ -130,7 +174,7 @@ const Chat = () => {
     clearTimeout(typingTimeoutRef.current);
     typingTimeoutRef.current = setTimeout(() => {
       if (socketRef.current) {
-        socketRef.current.emit("typing", {
+        socketRef.current.emit('typing', {
           senderId: user._id,
           targetUserId,
           isTyping: false,
@@ -145,15 +189,15 @@ const Chat = () => {
     const text = newMessage.trim();
     if (!text || !socketRef.current || !user?._id) return;
 
-    socketRef.current.emit("sendMessage", {
+    socketRef.current.emit('sendMessage', {
       senderId: user._id,
       targetUserId,
       text,
     });
 
-    setNewMessage("");
+    setNewMessage('');
     if (socketRef.current) {
-      socketRef.current.emit("typing", {
+      socketRef.current.emit('typing', {
         senderId: user._id,
         targetUserId,
         isTyping: false,
@@ -165,7 +209,9 @@ const Chat = () => {
     return (
       <div className="max-w-4xl mx-auto my-8 px-4 flex flex-col items-center justify-center min-h-[500px]">
         <div className="w-12 h-12 rounded-full border-4 border-indigo-500/30 border-t-indigo-500 animate-spin mb-4" />
-        <p className="text-sm font-mono text-slate-400">Opening secure chat channel...</p>
+        <p className="text-sm font-mono text-slate-400">
+          Opening secure chat channel...
+        </p>
       </div>
     );
   }
@@ -179,7 +225,9 @@ const Chat = () => {
             <LuShieldAlert className="w-8 h-8" />
           </div>
           <div>
-            <h2 className="text-xl font-bold text-white mb-2">Connection Required</h2>
+            <h2 className="text-xl font-bold text-white mb-2">
+              Connection Required
+            </h2>
             <p className="text-sm text-slate-400 leading-relaxed">{error}</p>
           </div>
           <div className="pt-2">
@@ -201,14 +249,13 @@ const Chat = () => {
   return (
     <div className="max-w-5xl mx-auto my-4 sm:my-8 px-2 sm:px-6 lg:px-8">
       <div className="bg-slate-900/90 border border-slate-800/90 rounded-3xl shadow-2xl backdrop-blur-xl overflow-hidden flex flex-col h-[82vh] max-h-[850px]">
-        
         {/* Chat Header */}
         <div className="px-5 py-4 bg-slate-950/70 border-b border-slate-800/90 flex items-center justify-between shrink-0">
           <div className="flex items-center gap-3.5">
             <Link
-              to="/connections"
+              to="/messages"
               className="p-2 rounded-xl bg-slate-800/60 hover:bg-slate-800 text-slate-400 hover:text-white border border-slate-700/60 transition-all cursor-pointer"
-              title="Back to Connections"
+              title="Back to Messages"
             >
               <LuArrowLeft className="w-4 h-4" />
             </Link>
@@ -217,20 +264,20 @@ const Chat = () => {
               <img
                 src={
                   targetUser?.photoUrl ||
-                  "https://thehotelexperience.com/wp-content/uploads/2019/08/default-avatar.png"
+                  'https://thehotelexperience.com/wp-content/uploads/2019/08/default-avatar.png'
                 }
-                alt={targetUser?.firstName || "Dev"}
+                alt={targetUser?.firstName || 'Dev'}
                 className="w-11 h-11 rounded-2xl object-cover border border-indigo-500/40 shadow"
               />
-              <span className="absolute bottom-0 right-0 w-3 h-3 rounded-full bg-emerald-500 border-2 border-slate-950" />
+              <span className="absolute bottom-0 right-0 w-3 h-3 rounded-full  border-2 border-slate-950" />
             </div>
 
             <div>
               <div className="flex items-center gap-2">
                 <h3 className="text-base font-bold text-white tracking-tight">
-                  {targetUser?.firstName} {targetUser?.lastName || ""}
+                  {targetUser?.firstName} {targetUser?.lastName || ''}
                 </h3>
-                <span className="hidden sm:inline-flex items-center gap-1 text-[10px] font-mono px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
+                <span className="hidden sm:inline-flex items-center gap-1 text-[10px] font-mono px-2 py-0.5 rounded-full  text-emerald-400 border border-emerald-500/20">
                   <LuSparkles className="w-2.5 h-2.5" /> Connected
                 </span>
               </div>
@@ -240,11 +287,12 @@ const Chat = () => {
                   <span className="truncate max-w-[200px] sm:max-w-[300px]">
                     {targetUser.role}
                   </span>
-                  {targetUser.experienceYears !== undefined && targetUser.experienceYears !== null && (
-                    <span className="text-slate-500 font-mono text-[10px]">
-                      • {targetUser.experienceYears}y exp
-                    </span>
-                  )}
+                  {targetUser.experienceYears !== undefined &&
+                    targetUser.experienceYears !== null && (
+                      <span className="text-slate-500 font-mono text-[10px]">
+                        • {targetUser.experienceYears}y exp
+                      </span>
+                    )}
                 </div>
               )}
             </div>
@@ -254,7 +302,11 @@ const Chat = () => {
           <div className="flex items-center gap-2">
             {targetUser?.githubUrl && (
               <a
-                href={targetUser.githubUrl.startsWith("http") ? targetUser.githubUrl : `https://${targetUser.githubUrl}`}
+                href={
+                  targetUser.githubUrl.startsWith('http')
+                    ? targetUser.githubUrl
+                    : `https://${targetUser.githubUrl}`
+                }
                 target="_blank"
                 rel="noreferrer"
                 className="p-2 rounded-xl bg-slate-800/60 hover:bg-slate-800 text-slate-300 hover:text-white border border-slate-700/60 transition-all hover:scale-105"
@@ -265,7 +317,11 @@ const Chat = () => {
             )}
             {effectiveLinkedIn && (
               <a
-                href={effectiveLinkedIn.startsWith("http") ? effectiveLinkedIn : `https://${effectiveLinkedIn}`}
+                href={
+                  effectiveLinkedIn.startsWith('http')
+                    ? effectiveLinkedIn
+                    : `https://${effectiveLinkedIn}`
+                }
                 target="_blank"
                 rel="noreferrer"
                 className="p-2 rounded-xl bg-slate-800/60 hover:bg-blue-600/20 text-blue-400 hover:text-white border border-blue-500/30 transition-all hover:scale-105"
@@ -284,46 +340,68 @@ const Chat = () => {
               <div className="w-14 h-14 rounded-2xl bg-indigo-500/10 border border-indigo-500/20 flex items-center justify-center text-indigo-400">
                 <LuSparkles className="w-7 h-7" />
               </div>
-              <h4 className="text-base font-bold text-white">You are connected!</h4>
+              <h4 className="text-base font-bold text-white">
+                You are connected!
+              </h4>
               <p className="text-xs text-slate-400 max-w-sm leading-relaxed">
-                Start a conversation with {targetUser?.firstName}. Discuss ideas, share repositories, and build something extraordinary together.
+                Start a conversation with {targetUser?.firstName}. Discuss
+                ideas, share repositories, and build something extraordinary
+                together.
               </p>
             </div>
           ) : (
             messages.map((msg, index) => {
               const isMine = String(msg.senderId) === String(user?._id);
+              const prevMsg = index > 0 ? messages[index - 1] : null;
+              const showDateDivider = isDifferentDay(
+                msg.createdAt,
+                prevMsg?.createdAt,
+              );
 
               return (
-                <div
-                  key={msg._id || index}
-                  className={`flex items-end gap-2 ${isMine ? "justify-end" : "justify-start"}`}
-                >
-                  {!isMine && (
-                    <img
-                      src={
-                        targetUser?.photoUrl ||
-                        "https://thehotelexperience.com/wp-content/uploads/2019/08/default-avatar.png"
-                      }
-                      alt={targetUser?.firstName || "Dev"}
-                      className="w-7 h-7 rounded-xl object-cover border border-slate-700 shrink-0 mb-1"
-                    />
+                <div key={msg._id || index} className="space-y-3.5">
+                  {showDateDivider && (
+                    <div className="flex justify-center my-3 sticky top-1 z-10 select-none">
+                      <div className="px-3.5 py-1 rounded-full bg-slate-900/90 text-slate-300 border border-slate-700/80 text-[11px] font-semibold tracking-wide shadow-md shadow-black/40 backdrop-blur-md">
+                        {formatDateDivider(msg.createdAt)}
+                      </div>
+                    </div>
                   )}
 
                   <div
-                    className={`max-w-[78%] sm:max-w-[65%] rounded-2xl px-4 py-2.5 shadow-md text-sm leading-relaxed break-words ${
-                      isMine
-                        ? "bg-gradient-to-r from-indigo-600 to-purple-600 text-white rounded-br-none"
-                        : "bg-slate-800/90 text-slate-100 border border-slate-700/80 rounded-bl-none"
-                    }`}
+                    className={`flex items-end gap-2 ${isMine ? 'justify-end' : 'justify-start'}`}
                   >
-                    <p>{msg.text}</p>
+                    {!isMine && (
+                      <img
+                        src={
+                          targetUser?.photoUrl ||
+                          'https://thehotelexperience.com/wp-content/uploads/2019/08/default-avatar.png'
+                        }
+                        alt={targetUser?.firstName || 'Dev'}
+                        className="w-7 h-7 rounded-xl object-cover border border-slate-700 shrink-0 mb-1"
+                      />
+                    )}
+
                     <div
-                      className={`flex items-center gap-1 text-[10px] mt-1 font-mono ${
-                        isMine ? "text-indigo-200 justify-end" : "text-slate-400 justify-start"
+                      className={`max-w-[78%] sm:max-w-[65%] rounded-2xl px-4 py-2.5 shadow-md text-sm leading-relaxed break-words ${
+                        isMine
+                          ? 'bg-gradient-to-r from-indigo-600 to-purple-600 text-white rounded-br-none'
+                          : 'bg-slate-800/90 text-slate-100 border border-slate-700/80 rounded-bl-none'
                       }`}
                     >
-                      <span>{formatTime(msg.createdAt)}</span>
-                      {isMine && <LuCheckCheck className="w-3 h-3 text-indigo-200" />}
+                      <p>{msg.text}</p>
+                      <div
+                        className={`flex items-center gap-1 text-[10px] mt-1 font-mono ${
+                          isMine
+                            ? 'text-indigo-200 justify-end'
+                            : 'text-slate-400 justify-start'
+                        }`}
+                      >
+                        <span>{formatTime(msg.createdAt)}</span>
+                        {isMine && (
+                          <LuCheckCheck className="w-3 h-3 text-indigo-200" />
+                        )}
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -351,7 +429,7 @@ const Chat = () => {
         >
           <input
             type="text"
-            placeholder={`Message ${targetUser?.firstName || "developer"}... (Press Enter to send)`}
+            placeholder={`Message ${targetUser?.firstName || 'developer'}... (Press Enter to send)`}
             value={newMessage}
             onChange={handleInputChange}
             maxLength={1000}
@@ -367,7 +445,6 @@ const Chat = () => {
             <span className="hidden sm:inline">Send</span>
           </button>
         </form>
-
       </div>
     </div>
   );
