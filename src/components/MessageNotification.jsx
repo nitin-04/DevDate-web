@@ -89,7 +89,7 @@ const MessageNotification = () => {
     socketRef.current = socket;
 
     const handleRegister = () => {
-      console.log('🔔 [NotificationSocket] Registering user:', user._id);
+      console.log('[NotificationSocket] Registering user:', user._id);
       socket.emit('registerUser', String(user._id));
     };
 
@@ -101,10 +101,7 @@ const MessageNotification = () => {
 
     // Listen for incoming message notifications
     const handleNotification = (notification) => {
-      console.log(
-        '🔔 [NotificationSocket] Received notification:',
-        notification,
-      );
+      console.log('[NotificationSocket] Received notification:', notification);
 
       // Don't show toast if user is already looking at that active chat
       const currentChatPath = `/chat/${notification.senderId}`;

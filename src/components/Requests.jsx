@@ -241,7 +241,7 @@ const Requests = () => {
                         title="Accept request"
                       >
                         <LuCheck className="w-4 h-4" />
-                        <span>Accept & Connect</span>
+                        <span>Accept</span>
                       </button>
                     </div>
                   </motion.div>

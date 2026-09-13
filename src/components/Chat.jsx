@@ -77,13 +77,22 @@ const Chat = () => {
 
   const socketRef = useRef(null);
   const messagesEndRef = useRef(null);
+  const messagesContainerRef = useRef(null);
   const typingTimeoutRef = useRef(null);
 
-  // Auto-scroll to latest message
+  // Ensure window starts at the top when entering chat
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, [targetUserId]);
+
+  // Auto-scroll message stream to latest message without scrolling the window
   const scrollToBottom = (smooth = true) => {
-    messagesEndRef.current?.scrollIntoView({
-      behavior: smooth ? 'smooth' : 'auto',
-    });
+    if (messagesContainerRef.current) {
+      messagesContainerRef.current.scrollTo({
+        top: messagesContainerRef.current.scrollHeight,
+        behavior: smooth ? 'smooth' : 'auto',
+      });
+    }
   };
 
   useEffect(() => {
@@ -207,7 +216,7 @@ const Chat = () => {
 
   if (loading) {
     return (
-      <div className="max-w-4xl mx-auto my-8 px-4 flex flex-col items-center justify-center min-h-[500px]">
+      <div className="max-w-4xl mx-auto pt-24 pb-8 px-4 flex flex-col items-center justify-center min-h-[500px]">
         <div className="w-12 h-12 rounded-full border-4 border-indigo-500/30 border-t-indigo-500 animate-spin mb-4" />
         <p className="text-sm font-mono text-slate-400">
           Opening secure chat channel...
@@ -219,7 +228,7 @@ const Chat = () => {
   // Unauthorized State (Users are not connected)
   if (error) {
     return (
-      <div className="max-w-xl mx-auto my-16 px-4">
+      <div className="max-w-xl mx-auto pt-24 pb-8 px-4">
         <div className="bg-slate-900/90 border border-slate-800 rounded-3xl p-8 text-center shadow-2xl backdrop-blur-xl space-y-5">
           <div className="w-16 h-16 rounded-2xl bg-rose-500/10 border border-rose-500/30 flex items-center justify-center mx-auto text-rose-400">
             <LuShieldAlert className="w-8 h-8" />
@@ -247,8 +256,8 @@ const Chat = () => {
   const effectiveLinkedIn = targetUser?.linkedInUrl || targetUser?.linkedinUrl;
 
   return (
-    <div className="max-w-5xl mx-auto my-4 sm:my-8 px-2 sm:px-6 lg:px-8">
-      <div className="bg-slate-900/90 border border-slate-800/90 rounded-3xl shadow-2xl backdrop-blur-xl overflow-hidden flex flex-col h-[82vh] max-h-[850px]">
+    <div className="max-w-5xl mx-auto pt-20 sm:pt-22 pb-4 px-2 sm:px-6 lg:px-8">
+      <div className="bg-slate-900/90 border border-slate-800/90 rounded-3xl shadow-2xl backdrop-blur-xl overflow-hidden flex flex-col h-[calc(100vh-6.5rem)] sm:h-[calc(100vh-7rem)] max-h-[850px]">
         {/* Chat Header */}
         <div className="px-5 py-4 bg-slate-950/70 border-b border-slate-800/90 flex items-center justify-between shrink-0">
           <div className="flex items-center gap-3.5">
@@ -334,7 +343,10 @@ const Chat = () => {
         </div>
 
         {/* Message Stream */}
-        <div className="flex-1 overflow-y-auto p-4 sm:p-6 space-y-3.5 bg-slate-950/40">
+        <div
+          ref={messagesContainerRef}
+          className="flex-1 overflow-y-auto p-4 sm:p-6 space-y-3.5 bg-slate-950/40"
+        >
           {messages.length === 0 ? (
             <div className="h-full flex flex-col items-center justify-center text-center p-6 space-y-3">
               <div className="w-14 h-14 rounded-2xl bg-indigo-500/10 border border-indigo-500/20 flex items-center justify-center text-indigo-400">

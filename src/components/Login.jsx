@@ -1,60 +1,71 @@
-import { useState, useEffect } from "react";
-import apiClient from "../api/apiClient";
-import { useDispatch } from "react-redux";
-import { addUser } from "../utils/userSlice";
-import { clearFeed } from "../utils/feedSlice";
-import { removeConnections } from "../utils/connectionSlice";
-import { clearRequests } from "../utils/requestSlice";
-import { useNavigate, useLocation } from "react-router-dom";
-import { toast } from "react-toastify";
-import { 
-  LuCodeXml, 
-  LuMail, 
-  LuLock, 
-  LuUser, 
-  LuEye, 
-  LuEyeOff, 
-  LuArrowRight, 
+import { useState, useEffect } from 'react';
+import apiClient from '../api/apiClient';
+import { useDispatch, useSelector } from 'react-redux';
+import { addUser } from '../utils/userSlice';
+import { clearFeed } from '../utils/feedSlice';
+import { removeConnections } from '../utils/connectionSlice';
+import { clearRequests } from '../utils/requestSlice';
+import { useNavigate, useLocation } from 'react-router-dom';
+import { toast } from 'react-toastify';
+import {
+  LuCodeXml,
+  LuMail,
+  LuLock,
+  LuUser,
+  LuEye,
+  LuEyeOff,
+  LuArrowRight,
   LuSparkles,
   LuCheck,
   LuShieldCheck,
-  LuCircleAlert
-} from "react-icons/lu";
+  LuCircleAlert,
+} from 'react-icons/lu';
 
 // Password strength evaluator based on OWASP & NIST standard
 const evaluatePasswordStrength = (pwd) => {
-  if (!pwd) return { score: 0, label: "", color: "", textColor: "", checks: [], isStrong: false };
+  if (!pwd)
+    return {
+      score: 0,
+      label: '',
+      color: '',
+      textColor: '',
+      checks: [],
+      isStrong: false,
+    };
 
   const checks = [
-    { label: "At least 8 characters", met: pwd.length >= 8 },
-    { label: "One uppercase letter (A-Z)", met: /[A-Z]/.test(pwd) },
-    { label: "One lowercase letter (a-z)", met: /[a-z]/.test(pwd) },
-    { label: "One number (0-9)", met: /[0-9]/.test(pwd) },
-    { label: "One special character (!@#$%^&*)", met: /[^A-Za-z0-9]/.test(pwd) },
+    { label: 'At least 8 characters', met: pwd.length >= 8 },
+    { label: 'One uppercase letter (A-Z)', met: /[A-Z]/.test(pwd) },
+    { label: 'One lowercase letter (a-z)', met: /[a-z]/.test(pwd) },
+    { label: 'One number (0-9)', met: /[0-9]/.test(pwd) },
+    {
+      label: 'One special character (!@#$%^&*)',
+      met: /[^A-Za-z0-9]/.test(pwd),
+    },
   ];
 
   const metCount = checks.filter((c) => c.met).length;
 
-  let label = "Weak";
-  let color = "bg-rose-500";
-  let textColor = "text-rose-400";
+  let label = 'Weak';
+  let color = 'bg-rose-500';
+  let textColor = 'text-rose-400';
 
   if (metCount === 5) {
-    label = "Very Strong";
-    color = "bg-emerald-400";
-    textColor = "text-emerald-400";
+    label = 'Very Strong';
+    color = 'bg-emerald-400';
+    textColor = 'text-emerald-400';
   } else if (metCount === 4) {
-    label = "Strong";
-    color = "bg-teal-400";
-    textColor = "text-teal-400";
+    label = 'Strong';
+    color = 'bg-teal-400';
+    textColor = 'text-teal-400';
   } else if (metCount === 3) {
-    label = "Fair";
-    color = "bg-amber-400";
-    textColor = "text-amber-400";
+    label = 'Fair';
+    color = 'bg-amber-400';
+    textColor = 'text-amber-400';
   } else if (metCount >= 1) {
-    label = "Weak";
-    color = "bg-rose-500";
-    textColor = "text-rose-400";
+    label = 'Weak';
+    color = 'bg-rose-500';
+    textColor = 'text-rose-400';
   }
 
   return {
@@ -72,39 +83,54 @@ const Login = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
 
-  const isSignUpUrl = location.pathname === "/signup";
+  const isSignUpUrl = location.pathname === '/signup';
   const [isLoginForm, setIsLoginForm] = useState(!isSignUpUrl);
 
-  const [emailId, setEmailId] = useState("");
-  const [password, setPassword] = useState("");
-  const [firstName, setFirstName] = useState("");
-  const [lastName, setLastName] = useState("");
+  const [emailId, setEmailId] = useState('');
+  const [password, setPassword] = useState('');
+  const [firstName, setFirstName] = useState('');
+  const [lastName, setLastName] = useState('');
   const [showPassword, setShowPassword] = useState(false);
-  const [error, setError] = useState("");
+  const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+
+  const user = useSelector((store) => store.user);
+
+  // If user is already authenticated, redirect to target or home
+  useEffect(() => {
+    if (user) {
+      const from = location.state?.from?.pathname || '/';
+      navigate(from, { replace: true });
+    }
+  }, [user, navigate, location.state]);
 
   // Sync state whenever URL changes between /login and /signup
   useEffect(() => {
-    setIsLoginForm(location.pathname !== "/signup");
-    setError("");
+    setIsLoginForm(location.pathname !== '/signup');
+    setError('');
   }, [location.pathname]);
 
   const passwordStrength = evaluatePasswordStrength(password);
 
   const handleLogin = async (e) => {
     e?.preventDefault();
-    setError("");
+    setError('');
     setLoading(true);
     try {
-      const res = await apiClient.post("/auth/login", { emailId, password });
+      const res = await apiClient.post('/auth/login', { emailId, password });
       dispatch(clearFeed());
       dispatch(removeConnections());
       dispatch(clearRequests());
       dispatch(addUser(res.data));
-      toast.success(`Welcome back, ${res?.data?.firstName || "developer"}!`);
-      navigate("/");
+      toast.success(`Welcome back, ${res?.data?.firstName || 'developer'}!`);
+      const from = location.state?.from?.pathname || '/';
+      navigate(from, { replace: true });
     } catch (err) {
-      const msg = err?.response?.data?.message || (typeof err?.response?.data === "string" ? err.response.data : "Invalid credentials. Please try again.");
+      const msg =
+        err?.response?.data?.message ||
+        (typeof err?.response?.data === 'string'
+          ? err.response.data
+          : 'Invalid credentials. Please try again.');
       setError(msg);
       toast.error(msg);
     } finally {
@@ -114,11 +140,12 @@ const Login = () => {
 
   const handleSignUp = async (e) => {
     e?.preventDefault();
-    setError("");
+    setError('');
 
     // Strict client-side password strength gate
     if (!passwordStrength.isStrong) {
-      const msg = "Please ensure your password satisfies all 5 security requirements.";
+      const msg =
+        'Please ensure your password satisfies all 5 security requirements.';
       setError(msg);
       toast.warning(msg);
       return;
@@ -126,7 +153,7 @@ const Login = () => {
 
     setLoading(true);
     try {
-      const res = await apiClient.post("/auth/signup", {
+      const res = await apiClient.post('/auth/signup', {
         firstName,
         lastName,
         emailId,
@@ -136,10 +163,14 @@ const Login = () => {
       dispatch(removeConnections());
       dispatch(clearRequests());
       dispatch(addUser(res.data.data));
-      toast.success("Account created successfully! Welcome to DevDate.");
-      navigate("/profile");
+      toast.success('Account created successfully! Welcome to DevDate.');
+      navigate('/profile');
     } catch (err) {
-      const msg = err?.response?.data?.message || (typeof err?.response?.data === "string" ? err.response.data : "Failed to create account.");
+      const msg =
+        err?.response?.data?.message ||
+        (typeof err?.response?.data === 'string'
+          ? err.response.data
+          : 'Failed to create account.');
       setError(msg);
       toast.error(msg);
     } finally {
@@ -161,17 +192,20 @@ const Login = () => {
               <LuCodeXml className="w-7 h-7 text-white" />
             </div>
             <h2 className="text-2xl sm:text-3xl font-black tracking-tight text-white">
-              {isLoginForm ? "Welcome Back" : "Join the Dev Community"}
+              {isLoginForm ? 'Welcome Back' : 'Join the Dev Community'}
             </h2>
             <p className="text-slate-400 text-xs sm:text-sm mt-1.5">
               {isLoginForm
-                ? "Connect with passionate developers worldwide."
-                : "Build your dev profile and discover matching collaborators."}
+                ? 'Connect with passionate developers worldwide.'
+                : 'Build your dev profile and discover matching collaborators.'}
             </p>
           </div>
 
           {/* Form */}
-          <form onSubmit={isLoginForm ? handleLogin : handleSignUp} className="space-y-4">
+          <form
+            onSubmit={isLoginForm ? handleLogin : handleSignUp}
+            className="space-y-4"
+          >
             {!isLoginForm && (
               <div className="grid grid-cols-2 gap-3">
                 <div className="relative">
@@ -217,7 +251,7 @@ const Login = () => {
             <div className="relative">
               <LuLock className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
               <input
-                type={showPassword ? "text" : "password"}
+                type={showPassword ? 'text' : 'password'}
                 placeholder="Password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
@@ -229,7 +263,11 @@ const Login = () => {
                 onClick={() => setShowPassword(!showPassword)}
                 className="absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-200 cursor-pointer"
               >
-                {showPassword ? <LuEyeOff className="w-4 h-4" /> : <LuEye className="w-4 h-4" />}
+                {showPassword ? (
+                  <LuEyeOff className="w-4 h-4" />
+                ) : (
+                  <LuEye className="w-4 h-4" />
+                )}
               </button>
             </div>
 
@@ -249,12 +287,13 @@ const Login = () => {
                   </div>
                   <div className="grid grid-cols-4 gap-1.5 h-1.5">
                     {[1, 2, 3, 4].map((level) => {
-                      const active = passwordStrength.score >= (level === 4 ? 5 : level + 1);
+                      const active =
+                        passwordStrength.score >= (level === 4 ? 5 : level + 1);
                       return (
                         <div
                           key={level}
                           className={`rounded-full transition-all duration-300 ${
-                            active ? passwordStrength.color : "bg-slate-800"
+                            active ? passwordStrength.color : 'bg-slate-800'
                           }`}
                         />
                       );
@@ -276,8 +315,8 @@ const Login = () => {
                         <div
                           className={`w-4 h-4 rounded-full flex items-center justify-center transition-all ${
                             check.met
-                              ? "bg-emerald-500/20 text-emerald-400 border border-emerald-500/40"
-                              : "bg-slate-800/60 text-slate-500 border border-slate-700/50"
+                              ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/40'
+                              : 'bg-slate-800/60 text-slate-500 border border-slate-700/50'
                           }`}
                         >
                           {check.met ? (
@@ -288,7 +327,9 @@ const Login = () => {
                         </div>
                         <span
                           className={
-                            check.met ? "text-slate-200 font-medium" : "text-slate-400"
+                            check.met
+                              ? 'text-slate-200 font-medium'
+                              : 'text-slate-400'
                           }
                         >
                           {check.label}
@@ -314,7 +355,13 @@ const Login = () => {
               disabled={loading}
               className="w-full mt-6 py-3 rounded-xl bg-gradient-to-r from-indigo-600 via-indigo-500 to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-white font-bold text-sm shadow-xl shadow-indigo-500/25 flex items-center justify-center gap-2 active:scale-[0.99] transition-all duration-200 cursor-pointer disabled:opacity-50"
             >
-              <span>{loading ? "Processing..." : isLoginForm ? "Sign In" : "Create Account"}</span>
+              <span>
+                {loading
+                  ? 'Processing...'
+                  : isLoginForm
+                    ? 'Sign In'
+                    : 'Create Account'}
+              </span>
               <LuArrowRight className="w-4 h-4" />
             </button>
           </form>
@@ -322,16 +369,16 @@ const Login = () => {
           {/* Toggle Switch */}
           <div className="text-center mt-6 pt-6 border-t border-slate-800/80">
             <p className="text-xs text-slate-400">
-              {isLoginForm ? "New to DevDate?" : "Already have an account?"}{" "}
+              {isLoginForm ? 'New to DevDate?' : 'Already have an account?'}{' '}
               <button
                 type="button"
                 onClick={() => {
-                  setError("");
-                  navigate(isLoginForm ? "/signup" : "/login");
+                  setError('');
+                  navigate(isLoginForm ? '/signup' : '/login');
                 }}
                 className="text-indigo-400 hover:text-indigo-300 font-semibold cursor-pointer underline underline-offset-4 ml-1"
               >
-                {isLoginForm ? "Create an account" : "Sign in instead"}
+                {isLoginForm ? 'Create an account' : 'Sign in instead'}
               </button>
             </p>
           </div>

@@ -15,6 +15,7 @@ import {
   LuMessageSquare,
   LuGithub,
   LuLinkedin,
+  LuBriefcase,
 } from 'react-icons/lu';
 
 const SKILL_COLORS = [
@@ -228,15 +229,21 @@ const Connections = () => {
                         </span>
                       )}
                     </h3>
-                    {(role || (experienceYears !== undefined && experienceYears !== null && experienceYears !== '')) && (
+                    {(role ||
+                      (experienceYears !== undefined &&
+                        experienceYears !== null &&
+                        experienceYears !== '')) && (
                       <div className="flex items-center gap-1.5 text-xs font-semibold text-indigo-300 drop-shadow">
-                        <Briefcase className="w-3 h-3 text-indigo-400 shrink-0" />
+                        <LuBriefcase className="w-3 h-3 text-indigo-400 shrink-0" />
                         <span className="truncate">{role || 'Developer'}</span>
-                        {experienceYears !== undefined && experienceYears !== null && experienceYears !== '' && (
-                          <span className="text-slate-300 font-mono text-[10px] bg-slate-950/70 px-1.5 py-0.5 rounded border border-slate-700/50">
-                            {experienceYears} {Number(experienceYears) === 1 ? 'yr' : 'yrs'}
-                          </span>
-                        )}
+                        {experienceYears !== undefined &&
+                          experienceYears !== null &&
+                          experienceYears !== '' && (
+                            <span className="text-slate-300 font-mono text-[10px] bg-slate-950/70 px-1.5 py-0.5 rounded border border-slate-700/50">
+                              {experienceYears}{' '}
+                              {Number(experienceYears) === 1 ? 'yr' : 'yrs'}
+                            </span>
+                          )}
                       </div>
                     )}
                   </div>
@@ -293,28 +300,14 @@ const Connections = () => {
                     </a>
                   )}
 
-                  <button
-                    onClick={() =>
-                      handleCopy(
-                        emailId ||
-                          `${firstName.toLowerCase()}@devdate.internal`,
-                        _id,
-                      )
-                    }
-                    title="Copy Email"
-                    className="p-2.5 rounded-xl bg-slate-800/80 hover:bg-slate-700 text-slate-300 hover:text-white border border-slate-700 transition-all duration-200 hover:scale-105 cursor-pointer flex items-center justify-center"
-                  >
-                    {isCopied ? (
-                      <LuCheck className="w-3.5 h-3.5 text-emerald-400" />
-                    ) : (
-                      <LuCopy className="w-3.5 h-3.5 text-slate-400" />
-                    )}
-                  </button>
-
                   {/* Social Quick Links */}
                   {githubUrl && (
                     <a
-                      href={githubUrl.startsWith('http') ? githubUrl : `https://${githubUrl}`}
+                      href={
+                        githubUrl.startsWith('http')
+                          ? githubUrl
+                          : `https://${githubUrl}`
+                      }
                       target="_blank"
                       rel="noreferrer"
                       className="p-2.5 rounded-xl bg-slate-800/80 hover:bg-slate-700 text-slate-300 hover:text-white border border-slate-700 flex items-center justify-center transition-all duration-200 hover:scale-105"
@@ -325,7 +318,11 @@ const Connections = () => {
                   )}
                   {effectiveLinkedIn && (
                     <a
-                      href={effectiveLinkedIn.startsWith('http') ? effectiveLinkedIn : `https://${effectiveLinkedIn}`}
+                      href={
+                        effectiveLinkedIn.startsWith('http')
+                          ? effectiveLinkedIn
+                          : `https://${effectiveLinkedIn}`
+                      }
                       target="_blank"
                       rel="noreferrer"
                       className="p-2.5 rounded-xl bg-slate-800/80 hover:bg-blue-600/30 text-blue-400 hover:text-white border border-blue-500/30 flex items-center justify-center transition-all duration-200 hover:scale-105"
