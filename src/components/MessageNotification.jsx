@@ -103,8 +103,16 @@ const MessageNotification = () => {
     const handleNotification = (notification) => {
       console.log('[NotificationSocket] Received notification:', notification);
 
-      // Don't show toast if user is already looking at that active chat
-      const currentChatPath = `/chat/${notification.senderId}`;
+      const senderId = notification?.senderId?._id || notification?.senderId;
+      const currentUserId = user?._id;
+
+      // 1. NEVER notify the user for messages they sent themselves
+      if (senderId && currentUserId && String(senderId) === String(currentUserId)) {
+        return;
+      }
+
+      // 2. Don't show toast if user is already looking at that active chat
+      const currentChatPath = `/chat/${senderId}`;
       if (currentPathRef.current === currentChatPath) {
         return;
       }

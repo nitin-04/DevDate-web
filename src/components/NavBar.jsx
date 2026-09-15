@@ -6,6 +6,7 @@ import { removeUser } from "../utils/userSlice";
 import { clearFeed } from "../utils/feedSlice";
 import { removeConnections } from "../utils/connectionSlice";
 import { clearRequests } from "../utils/requestSlice";
+import { disconnectSocket } from "../utils/socket";
 import { 
   LuCodeXml, 
   LuFlame, 
@@ -29,6 +30,7 @@ const NavBar = () => {
   const handleLogout = async () => {
     try {
       await apiClient.post("/auth/logout");
+      disconnectSocket();
       dispatch(removeUser());
       dispatch(clearFeed());
       dispatch(removeConnections());

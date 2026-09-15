@@ -19,3 +19,10 @@ export const getSocket = () => {
 };
 
 export const createSocketConnection = getSocket;
+
+export const disconnectSocket = () => {
+  if (socketInstance) {
+    socketInstance.disconnect();
+    socketInstance = null;
+  }
+};
